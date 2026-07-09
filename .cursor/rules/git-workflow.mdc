@@ -1,0 +1,68 @@
+---
+description: Branching and commit workflow — small logical commits, clear messages
+alwaysApply: true
+---
+
+# Git Workflow
+
+## Branching
+
+- `main` is the stable integration branch. Keep it deployable.
+- Create short-lived branches from `main` for all work:
+  - `feat/<short-name>` — new behavior or UI
+  - `fix/<short-name>` — bug fixes
+  - `test/<short-name>` — test-only changes
+  - `chore/<short-name>` — tooling, deps, config, docs
+- One branch should cover one roadmap slice or one tightly related set of slices.
+- Re-sync with `main` before opening a PR if the branch is behind.
+- Prefer one PR per logical feature or slice. Do not bundle unrelated phases.
+
+## Commit Size and Scope
+
+- **One logical change per commit.** If a task touches multiple concerns, split into multiple commits.
+- Do not mix unrelated files (e.g., auth + meme provider + unrelated styling) in one commit.
+- Typical split order when a slice spans layers:
+  1. schema / migration
+  2. repository or service logic
+  3. API route
+  4. frontend UI
+  5. tests for that slice
+- Stage selectively (`git add <paths>`) instead of blanket `git add .` when the working tree has mixed changes.
+- Run tests for the affected area before each commit in a series.
+
+## Commit Messages
+
+### Subject line
+- Format: `<type>: <imperative summary>`
+- Types: `feat`, `fix`, `test`, `refactor`, `chore`, `docs`
+- Keep the subject under 72 characters.
+- State intent ("add session idle timeout"), not implementation noise ("update files").
+
+### Body (use when needed)
+Add a body separated by a blank line when:
+- the *why* is not obvious from the subject
+- the change has trade-offs, constraints, or follow-up work
+- multiple files change for one reason and reviewers need context
+- a migration, breaking change, or provider swap needs notes
+
+Keep bodies short: 1–3 sentences or a few bullet points. No essays.
+
+### Examples
+
+```
+feat: add onboarding quiz preference save flow
+```
+
+```
+fix: handle CoinGecko timeout with dashboard fallback
+
+Return cached prices when the provider exceeds the 5s timeout so the
+dashboard still renders partial market data.
+```
+
+## Agent Commit Behavior
+
+- Ask the user before committing unless they explicitly requested a commit.
+- If changes are large or span multiple logical units, propose a commit plan and split before committing.
+- Never commit secrets, `.env`, or credential files.
+- After committing, verify with `git status` and `git log -1`.

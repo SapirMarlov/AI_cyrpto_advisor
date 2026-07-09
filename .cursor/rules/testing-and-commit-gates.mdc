@@ -1,0 +1,33 @@
+---
+description: Test and commit gate requirements for AI Crypto Advisor MVP
+globs: **/*.{ts,tsx,js,jsx,py}
+alwaysApply: false
+---
+
+# Testing and Commit Gates
+
+## Testing Requirements
+- Add unit tests for new or changed logic.
+- Add e2e tests for critical user flows:
+  - auth
+  - first-login onboarding
+  - dashboard content rendering
+  - voting interactions
+- Require all tests to pass before considering work complete.
+- Keep test structure readable and maintainable.
+- Execute tests slice-by-slice according to `docs/roadmap.md` checkpoints.
+- Minimum per slice: at least one acceptance test (unit or e2e) that proves the slice goal.
+- For provider and dashboard work, include failure-path tests (timeout, fallback, partial success).
+
+## Gotcha Tracking
+- Save gotcha moments during development, including:
+  - external API reliability/rate-limit issues
+  - auth/session edge cases
+  - flaky test behavior and stabilizing notes
+
+## Commit Workflow
+- Follow `.cursor/rules/git-workflow.mdc` for branching, commit size, and message format.
+- One logical change per commit; split large work instead of one big commit.
+- Ask user permission before committing unless they explicitly requested it.
+- Subject line max 72 characters; add a short body when the why is not obvious.
+- Keep commits aligned to one roadmap slice when possible (avoid mixing unrelated phases).

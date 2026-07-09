@@ -1,0 +1,51 @@
+---
+description: MVP delivery standards for AI Crypto Advisor
+alwaysApply: true
+---
+
+# AI Crypto Advisor MVP Standards
+
+## Mission Focus
+- Build a personalized crypto investor dashboard with:
+  - Login/Signup
+  - First-login onboarding quiz
+  - Daily dashboard with Market News, Coin Prices, AI Insight, and Meme
+  - User feedback (thumbs up/down) stored for future recommendations
+- Prioritize shipping a working MVP in 1-2 work days.
+- Execute in roadmap order from `docs/roadmap.md` (Phase 0 -> Phase 7).
+
+## Technical Stack (Required)
+- Frontend: React.
+- Backend: Python Flask.
+- Database: SQLite.
+- Keep architecture modular so external providers can be swapped later with minimal refactor.
+- Python setup must use a project-local virtual environment (`.venv`).
+
+## Engineering Constraints
+- Write unit tests and e2e tests for new or changed behavior.
+- Ensure all tests pass before proposing completion.
+- Keep code and folder structure clean; do not create unnecessary files or folders.
+- Add new files, folders, and methods only when needed for clean architecture and design.
+- Keep method names in simple English.
+- Build in small slices suitable for weaker models:
+  - One slice = one responsibility, usually up to 5 touched files.
+  - Define exact file paths and API contracts before implementing.
+  - Add at least one explicit acceptance test per slice.
+
+## Workflow Rules
+- Follow `.cursor/rules/git-workflow.mdc`: short-lived branches, one logical change per commit, body when needed.
+- After every big change, ask the user for permission before committing.
+- Save gotcha moments (important pitfalls, edge cases, or integration caveats) in project notes.
+- For backend tasks, create and activate `.venv` before install/run/test commands.
+
+## Product Scope Guardrails
+- Prefer free-tier/public services and include fallback behavior when external APIs fail.
+- Use only free public APIs and free-tier AI tools.
+- Implement essentials first; defer non-MVP enhancements unless explicitly requested.
+- Keep UX clean and readable over premature optimization.
+- Prioritize readable code and good structure in every feature.
+- Backend and logic generation should favor GPT-5.5 prompts.
+- UI generation should favor Composer with contract-first prompts (states + props + API shape).
+
+## Skill Evolution Rule
+- Create project skills on the run when recurring work appears (for example: adding a new AI tool or replacing the meme provider).
