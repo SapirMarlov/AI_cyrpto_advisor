@@ -1,0 +1,59 @@
+---
+description: Backend and API conventions for AI Crypto Advisor MVP
+globs: **/*.py
+alwaysApply: false
+---
+
+# Backend and API MVP Conventions
+
+## Python Environment
+- Use a project-local virtual environment named `.venv` for all backend work.
+- Create venv if missing before backend setup:
+  - Windows PowerShell: `python -m venv .venv`
+  - Activation: `.venv\\Scripts\\Activate.ps1`
+- Install dependencies and run backend tests only inside the active `.venv`.
+- Do not install backend dependencies into the global Python environment.
+
+## Scope and Architecture
+- Build only endpoints/services needed for MVP user flow.
+- Keep business logic clear and modular, but avoid over-engineering.
+- Use simple English names for methods, services, and data fields.
+- Use Flask patterns that keep routes, services, and data access separated.
+- Build provider adapters/interfaces so AI/news/meme tools can be replaced later.
+- Implement in roadmap dependency order:
+  - DB schema/repositories -> services -> routes -> middleware/hardening.
+
+## Auth, Data, and Feedback
+- Support secure login/signup and onboarding preference storage.
+- Persist dashboard feedback votes (thumbs up/down) for future personalization.
+- Validate input at API boundaries and return consistent error responses.
+- Use SQLite for MVP data storage with clear schema and migration discipline.
+- Scope all protected operations to `current_user_id` from server-side session.
+- Never trust client-provided user ids for onboarding or feedback writes.
+- Enforce session policy: HTTP-only cookie, `SameSite=Lax`, idle 24h, absolute 7d.
+- Apply simple login rate limiting by IP + email for brute-force reduction.
+
+## External Integrations
+- Use free/public APIs with timeout and failure handling.
+- Add safe fallback responses when third-party services are unavailable.
+- Log integration failures clearly for quick MVP debugging.
+- Provider modules must not leak uncaught exceptions to route handlers.
+- Dashboard responses must allow partial section success (`news`, `prices`, `insight`, `meme`).
+
+## API Contracts
+- Keep endpoint list aligned with architecture:
+  - `POST /api/auth/signup`
+  - `POST /api/auth/login`
+  - `POST /api/auth/logout`
+  - `GET /api/auth/me`
+  - `GET /api/onboarding/questions`
+  - `POST /api/onboarding/answers`
+  - `GET /api/dashboard/daily`
+  - `POST /api/feedback/vote`
+- Use a consistent response envelope:
+  - Success: `{ "ok": true, "data": {...}, "error": null }`
+  - Error: `{ "ok": false, "data": null, "error": { "code": "string", "message": "string" } }`
+
+## Repository Hygiene
+- Do not create unnecessary files/folders or speculative layers.
+- Add files/methods only when required for clean architecture and design.

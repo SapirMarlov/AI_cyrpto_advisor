@@ -1,0 +1,44 @@
+---
+description: Frontend conventions for AI Crypto Advisor MVP
+globs: **/*.{tsx,jsx,css,scss}
+alwaysApply: false
+---
+
+# Frontend MVP Conventions
+
+## UX Priorities
+- Keep screens simple, readable, and fast to scan.
+- Implement the core flow first: auth, onboarding, daily dashboard.
+- Show clear loading, empty, and error states for each dashboard section.
+- Prefer clean UX decisions over visual complexity.
+- Build frontend only after stable backend contracts are defined.
+- Keep route guards strict:
+  - guests -> `Login`, `Signup`
+  - authenticated users -> `Onboarding` and `Dashboard` (based on onboarding status)
+
+## Component and State Design
+- Prefer small components with clear responsibilities.
+- Keep method and handler names in simple English.
+- Avoid over-abstraction; extract shared logic only when repeated and useful.
+- Keep code readable and easy to refactor.
+- Use explicit panel-level states so one failing section does not block the whole dashboard.
+
+## API and Fallback Behavior
+- Integrate free APIs only and handle rate limits/errors gracefully.
+- Provide visible fallback content if news, price, AI insight, or meme endpoints fail.
+- Never block the whole dashboard because one section fails.
+- Access backend through stable client/service interfaces to support provider swaps.
+- Use typed `apiClient` wrappers for all backend endpoints.
+- Keep UI aligned with envelope parsing (`ok`, `data`, `error`) and section-level error fields.
+
+## Model Workflow
+- Prefer Composer for generating UI pages/components and styling refinements.
+- Use contract-first Composer prompts that include:
+  - component/page purpose
+  - props and expected payload shape
+  - loading/empty/error states
+  - navigation/redirect behavior
+
+## Clean Structure
+- Do not create unnecessary files or folders.
+- Add new frontend files only when they improve clarity or reuse.

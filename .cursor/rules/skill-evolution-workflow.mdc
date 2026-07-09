@@ -1,0 +1,33 @@
+---
+description: Create and maintain project skills as recurring workflows emerge
+globs: .cursor/skills/**/SKILL.md
+alwaysApply: false
+---
+
+# Skill Evolution Workflow
+
+## When to Create a New Skill
+- A recurring task appears at least twice.
+- A workflow has strict steps and quality gates.
+- A provider integration is likely to be replaced in the future.
+- A repeated roadmap slice pattern needs stable prompts for weaker models.
+
+## Skill Content Requirements
+- Keep SKILL.md concise and practical.
+- Document trigger conditions clearly ("use when...").
+- Include project constraints:
+  - React frontend
+  - Flask backend
+  - SQLite database
+  - free APIs and free-tier AI tools
+- Include test and commit gate reminders when relevant.
+- Include exact input/output contracts when the skill is used with weaker models.
+- Prefer checklist format with small verifiable steps.
+
+## Typical New Skills for This Project
+- Add/replace AI insight provider.
+- Add/replace meme provider.
+- Add/replace crypto news provider.
+- Add/replace coin price provider.
+- Generate Composer contract-first UI prompts for dashboard/auth/onboarding pages.
+- Implement one roadmap slice end-to-end with explicit acceptance criteria.

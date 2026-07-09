@@ -1,0 +1,59 @@
+---
+description: Security baseline rules for AI Crypto Advisor MVP
+globs: **/*.{py,ts,tsx,js,jsx,sql}
+alwaysApply: true
+---
+
+# Security MVP Baseline
+
+## Auth and Session Security
+- Never store plaintext passwords. Use `bcrypt` (or `argon2`) with a strong work factor.
+- Use server-side sessions only; do not trust client-auth claims.
+- Session cookies must be `HttpOnly`, `Secure` in production, and `SameSite=Lax`.
+- Enforce session idle timeout (24h) and absolute lifetime (7d).
+- Invalidate server-side session on logout.
+- Protect authenticated routes with middleware and derive user identity from session context only.
+
+## Input Validation and Output Safety
+- Validate all request payloads at API boundaries with strict schemas.
+- Reject unexpected fields by default for auth, onboarding, dashboard filters, and feedback vote APIs.
+- Sanitize or escape user-generated text before rendering.
+- Avoid `dangerouslySetInnerHTML` for untrusted content.
+- Return consistent error envelopes without leaking stack traces or internal implementation details.
+
+## Authorization and Data Access
+- Enforce per-user scoping in every repository/service operation.
+- Never accept client-provided `user_id` for protected writes.
+- Use least-privilege data access: fetch/update only required fields.
+- For feedback votes, validate enum values (`item_type`, `vote_type`) and enforce uniqueness policy.
+
+## Database and Query Safety
+- Use parameterized queries only; never build SQL from string concatenation with user input.
+- Keep migrations deterministic and reversible when possible.
+- Add constraints/indexes for security-critical integrity (unique email, vote uniqueness).
+- Do not log raw credentials, tokens, cookies, or full sensitive payloads.
+
+## API and Provider Security
+- Set outbound request timeouts for all third-party provider calls.
+- Handle provider failures with safe fallbacks; never expose provider secrets in responses.
+- Treat external API content as untrusted input and validate/map it before returning to UI.
+- Add basic login rate limiting by IP + email to reduce brute-force risk.
+
+## Frontend Security
+- Keep route guards for guest/authenticated/onboarding states aligned with backend auth checks.
+- Do not store sensitive session tokens in localStorage/sessionStorage.
+- Parse backend envelope defensively (`ok`, `data`, `error`) and fail safely on malformed payloads.
+- Render fallback states instead of unsafe assumptions when section data is missing.
+
+## Secrets and Configuration
+- Keep secrets in environment variables; never hardcode API keys or credentials.
+- Ensure `.env` and secret files are gitignored.
+- Use separate development and production config defaults for cookie/security behavior.
+
+## Testing Security Gates
+- Add negative tests for:
+  - invalid auth payloads
+  - unauthorized route access
+  - malformed onboarding/feedback payloads
+  - provider timeout/failure fallback behavior
+- Verify security-sensitive paths before marking work complete.
