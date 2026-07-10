@@ -1,6 +1,14 @@
 import os
 from pathlib import Path
 
+try:
+    from dotenv import load_dotenv
+
+    _env_path = Path(__file__).resolve().parents[1] / ".env"
+    load_dotenv(_env_path)
+except ImportError:
+    pass
+
 
 class Config:
     ENV = os.getenv("FLASK_ENV", "development")
