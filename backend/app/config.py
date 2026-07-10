@@ -26,6 +26,14 @@ class Config:
     SESSION_ABSOLUTE_SECONDS = 604800
     LOGIN_RATE_MAX_ATTEMPTS = 5
     LOGIN_RATE_WINDOW_SECONDS = 900
+    CORS_ORIGINS = [
+        origin.strip()
+        for origin in os.getenv(
+            "CORS_ORIGINS",
+            "http://localhost:5173,http://127.0.0.1:5173",
+        ).split(",")
+        if origin.strip()
+    ]
 
     # Provider settings
     PROVIDER_HTTP_TIMEOUT = float(os.getenv("PROVIDER_HTTP_TIMEOUT", "5"))

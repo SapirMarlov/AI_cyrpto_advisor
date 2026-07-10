@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_cors import CORS
 
 from app.config import Config, TestConfig
 from app.db import init_db
@@ -19,6 +20,11 @@ def create_app(config_class=None):
         resolved_config = TestConfig
 
     app.config.from_object(resolved_config)
+    CORS(
+        app,
+        origins=app.config["CORS_ORIGINS"],
+        supports_credentials=True,
+    )
     init_db(app)
     app.teardown_appcontext(close_db)
     app.register_blueprint(auth_bp)
