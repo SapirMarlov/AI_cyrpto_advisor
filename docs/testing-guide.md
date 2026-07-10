@@ -13,6 +13,7 @@ Run from the **repo root** unless noted. Backend always needs the project `.venv
 ```powershell
 # Backend — all tests
 .\.venv\Scripts\Activate.ps1
+$env:PYTHONPATH = "backend"
 pytest backend\tests
 
 # Backend — one file
@@ -30,6 +31,12 @@ npm test
 
 # Frontend — watch mode
 npm run test:watch
+
+# Browser e2e (Playwright) — starts Flask + Vite automatically
+cd e2e
+npm install
+npm run install:browsers
+npm test
 ```
 
 Exit code `0` means green. Do not merge a TODO/slice into its phase branch until the **affected** suites pass.
@@ -43,7 +50,7 @@ Exit code `0` means green. Do not merge a TODO/slice into its phase branch until
 | Backend unit | pytest | `backend/tests/` | Repositories, services, utils, rate limiter, schema |
 | Backend route | pytest + Flask test client | `backend/tests/test_*_routes.py` | Status codes, envelope, cookies, auth guards |
 | Frontend unit | Vitest + Testing Library | `frontend/src/**/*.{test.ts,test.tsx}` | Components, pages, client helpers |
-| e2e (Phase 7) | Playwright (planned) | TBD | Full browser auth → onboarding → dashboard → vote |
+| Browser e2e | Playwright | `e2e/tests/` | Critical path: signup → onboarding → dashboard → vote → logout |
 
 Minimum per roadmap slice: **at least one acceptance test** that proves the slice goal (unit or route/e2e).
 
@@ -108,12 +115,23 @@ Update this list when adding or removing test modules.
 | `test_feedback_service.py` | Vote persist, replace, validation helpers |
 | `test_feedback_routes.py` | `POST /api/feedback/vote` auth + validation |
 | `test_cors.py` | Credentialed CORS headers for Vite origin |
+| `test_error_handler.py` | Safe 404/500 envelopes (no stack traces) |
+| `test_static_providers.py` | Offline static news/prices/meme providers |
 
-### 3.5 Planned backend / e2e (Phase 7)
+### 3.5 Browser e2e (`e2e/`)
 
-| Area | Expected files / focus |
+| File | Covers |
 | --- | --- |
-| Browser e2e | Playwright critical path against running Flask + Vite |
+| `tests/critical-path.spec.ts` | Signup → onboarding → dashboard sections → vote → logout |
+
+Playwright starts Flask (`e2e/run_backend.py`) and Vite via `webServer`, using a temp SQLite DB and `static`/`template` providers so the run stays offline-deterministic.
+
+```powershell
+cd e2e
+npm install
+npm run install:browsers   # once per machine
+npm test
+```
 
 Provider rule: **never** let uncaught provider exceptions reach the route; tests must prove fallbacks.
 
@@ -154,9 +172,9 @@ Config: `frontend/vite.config.ts` (`environment: "jsdom"`, `setupFiles: ./src/te
 | `src/components/dashboard/VoteButtons.test.tsx` | Optimistic vote + error revert |
 | `src/components/dashboard/itemIds.test.ts` | Client `item_id` derivation |
 
-### 4.4 Phase 6 acceptance runner
+### 4.4 Critical flows vs browser e2e
 
-Phase 6 uses **Vitest + Testing Library** with mocked `apiClient` for the critical flows (auth, onboarding, dashboard, votes). Real browser e2e (Playwright) is deferred to Phase 7.
+Phase 6 uses **Vitest + Testing Library** with mocked `apiClient` for fast page/component coverage (auth, onboarding, dashboard, votes). **Playwright** in `e2e/` covers the real browser critical path against live Flask + Vite (Phase 7).
 
 ---
 

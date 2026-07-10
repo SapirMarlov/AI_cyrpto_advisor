@@ -6,14 +6,21 @@ from app.providers.ai_provider import GeminiInsightProvider, TemplateInsightProv
 from app.providers.meme_provider import RedditGeminiMemeProvider
 from app.providers.news_provider import CryptoPanicNewsProvider, RssNewsProvider
 from app.providers.price_provider import CoinGeckoPriceProvider
+from app.providers.static_providers import (
+    StaticMemeProvider,
+    StaticNewsProvider,
+    StaticPriceProvider,
+)
 
 PROVIDER_IMPLEMENTATIONS = {
     "prices": {
         "coingecko": CoinGeckoPriceProvider,
+        "static": StaticPriceProvider,
     },
     "news": {
         "cryptopanic": CryptoPanicNewsProvider,
         "rss": RssNewsProvider,
+        "static": StaticNewsProvider,
     },
     "insight": {
         "gemini": GeminiInsightProvider,
@@ -21,6 +28,7 @@ PROVIDER_IMPLEMENTATIONS = {
     },
     "meme": {
         "reddit_gemini": RedditGeminiMemeProvider,
+        "static": StaticMemeProvider,
     },
 }
 
