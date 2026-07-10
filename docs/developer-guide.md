@@ -291,7 +291,7 @@ Update this table when a phase lands on `master` or a phase branch is the active
 | 2 | Auth + sessions | Done |
 | 3 | Onboarding | Done |
 | 4 | Providers + dashboard API | Done |
-| 5 | Feedback voting API | Done (`phase/5-feedback`) |
+| 5 | Feedback voting API | Done |
 | 6 | Frontend screens | Not started (shell only) — Next |
 | 7 | Hardening + delivery | Not started |
 
