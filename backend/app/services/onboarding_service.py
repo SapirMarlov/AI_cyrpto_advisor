@@ -1,3 +1,7 @@
+import sqlite3
+
+from app.repositories.preferences_repository import save_preferences
+
 QUESTIONS = [
     {
         "id": "interested_assets",
@@ -38,3 +42,12 @@ QUESTIONS = [
 
 def get_questions() -> list[dict]:
     return QUESTIONS
+
+
+def save_answers(conn: sqlite3.Connection, user_id: int, answers: dict) -> dict:
+    return save_preferences(
+        conn,
+        user_id=user_id,
+        answers=answers,
+        onboarding_completed=True,
+    )

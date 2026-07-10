@@ -1,6 +1,7 @@
 from flask import Blueprint, current_app, g, make_response, request
 
 from app.db.connection import get_db
+from app.repositories.preferences_repository import get_preferences
 from app.services import auth_service
 from app.services.auth_service import EmailExistsError
 from app.services.rate_limiter import LoginRateLimiter
@@ -97,4 +98,13 @@ def logout():
 @auth_bp.get("/me")
 @login_required
 def me():
-    return success_response({"user": g.current_user})
+    preferences = get_preferences(get_db(), g.current_user["id"])
+    onboarding_completed = bool(
+        preferences and preferences.get("onboarding_completed")
+    )
+    return success_response(
+        {
+            "user": g.current_user,
+            "onboarding_completed": onboarding_completed,
+        }
+    )

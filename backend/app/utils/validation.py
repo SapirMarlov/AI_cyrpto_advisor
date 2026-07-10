@@ -35,3 +35,63 @@ def validate_auth_payload(payload: dict | None, allowed_fields: set[str]) -> dic
         raise ValidationError(f"Password must be at least {MIN_PASSWORD_LENGTH} characters")
 
     return {"email": normalized_email, "password": password}
+
+
+def validate_onboarding_answers(payload: dict | None, questions: list[dict]) -> dict:
+    if payload is None or not isinstance(payload, dict):
+        raise ValidationError("Request body must be a JSON object")
+
+    unexpected = set(payload.keys()) - {"answers"}
+    if unexpected:
+        raise ValidationError(f"Unexpected fields: {', '.join(sorted(unexpected))}")
+
+    answers = payload.get("answers")
+    if answers is None or not isinstance(answers, dict):
+        raise ValidationError("Answers must be an object")
+
+    question_by_id = {question["id"]: question for question in questions}
+    unexpected_answers = set(answers.keys()) - set(question_by_id.keys())
+    if unexpected_answers:
+        raise ValidationError(
+            f"Unexpected answer fields: {', '.join(sorted(unexpected_answers))}"
+        )
+
+    validated: dict = {}
+    for question in questions:
+        question_id = question["id"]
+        if question_id not in answers:
+            raise ValidationError(f"Answer for '{question_id}' is required")
+
+        value = answers[question_id]
+        allowed_ids = {option["id"] for option in question["options"]}
+
+        if question["type"] == "single":
+            if not isinstance(value, str) or not value:
+                raise ValidationError(f"Answer for '{question_id}' must be a string")
+            if value not in allowed_ids:
+                raise ValidationError(f"Invalid option for '{question_id}'")
+            validated[question_id] = value
+            continue
+
+        if question["type"] == "multi":
+            if not isinstance(value, list) or not value:
+                raise ValidationError(
+                    f"Answer for '{question_id}' must be a non-empty list"
+                )
+            if not all(isinstance(item, str) and item for item in value):
+                raise ValidationError(
+                    f"Answer for '{question_id}' must contain only option ids"
+                )
+            if len(value) != len(set(value)):
+                raise ValidationError(
+                    f"Answer for '{question_id}' must not contain duplicates"
+                )
+            invalid = set(value) - allowed_ids
+            if invalid:
+                raise ValidationError(f"Invalid option for '{question_id}'")
+            validated[question_id] = value
+            continue
+
+        raise ValidationError(f"Unsupported question type for '{question_id}'")
+
+    return validated
