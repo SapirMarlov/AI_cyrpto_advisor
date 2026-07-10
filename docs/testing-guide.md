@@ -98,16 +98,21 @@ Update this list when adding or removing test modules.
 | `test_auth_guard.py` | `login_required` middleware |
 | `test_rate_limiter.py` | Login rate limit window |
 | `test_onboarding_routes.py` | Questions + answers |
+| `test_provider_base.py` | Provider run + cache fallback |
+| `test_gemini_client.py` | Gemini REST helper |
+| `test_price_provider.py` | CoinGecko price fetch + failures |
+| `test_news_provider.py` | CryptoPanic / RSS fetch + failures |
+| `test_ai_provider.py` | Gemini / template insight |
+| `test_meme_provider.py` | Reddit + Gemini meme selection |
+| `test_dashboard_route.py` | Daily dashboard mixed section outcomes |
+| `test_feedback_service.py` | Vote persist, replace, validation helpers |
+| `test_feedback_routes.py` | `POST /api/feedback/vote` auth + validation |
 
-### 3.5 Planned backend tests (Phase 4+)
+### 3.5 Planned backend tests (Phase 6+)
 
 | Area | Expected files / focus |
 | --- | --- |
-| Provider base + cache fallback | `test_provider_base.py` — success, exception, stale cache |
-| Gemini client | `test_gemini_client.py` — success, timeout, non-200, missing key |
-| Price / news / AI / meme providers | Mocked HTTP: success, timeout, malformed, fallback |
-| Dashboard route | `test_dashboard_route.py` — mixed section success/failure, still 200 |
-| Feedback route | Auth, validation enums, replace/reject policy |
+| Frontend e2e (later) | Auth → onboarding → dashboard → vote critical path |
 
 Provider rule: **never** let uncaught provider exceptions reach the route; tests must prove fallbacks.
 
@@ -196,7 +201,8 @@ Useful after pulling or before a demo:
 
 1. Start backend: `python backend\run.py`  
 2. `GET /api/health` → `ok: true`  
-3. Signup → `GET /api/auth/me` with cookie → onboarding questions → save answers  
-4. (Later) `GET /api/dashboard/daily` with mixed provider keys present/absent  
+3. Signup → `GET /api/auth/me` with cookie → onboarding questions → save answers
+4. `GET /api/dashboard/daily` with mixed provider keys present/absent
+5. `POST /api/feedback/vote` (auth required; replace-on-repeat)
 
 Frontend: `npm run dev` and confirm the shell loads without console errors.

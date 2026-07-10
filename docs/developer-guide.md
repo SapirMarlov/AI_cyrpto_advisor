@@ -190,15 +190,16 @@ Helpers: `backend/app/utils/response.py`. Frontend types: `frontend/src/services
 | `GET` | `/api/auth/me` | Session | Current user + onboarding state |
 | `GET` | `/api/onboarding/questions` | Session | Static quiz questions |
 | `POST` | `/api/onboarding/answers` | Session | Validates + saves preferences |
+| `GET` | `/api/dashboard/daily` | Session | Per-section news/prices/insight/meme (partial success) |
+| `POST` | `/api/feedback/vote` | Session | Body: `{ item_id, item_type, vote_type }`; upsert replace |
 
 ### Planned (roadmap)
 
 | Method | Path | Phase |
 | --- | --- | --- |
-| `GET` | `/api/dashboard/daily` | 4 |
-| `POST` | `/api/feedback/vote` | 5 |
+| — | Frontend screens (auth, onboarding, dashboard + vote UI) | 6 |
 
-Dashboard will return **per-section** payloads (`news`, `prices`, `insight`, `meme`) so one provider failure does not fail the whole response. See Phase 4 plan under `.cursor/plans/`.
+Dashboard returns **per-section** payloads (`news`, `prices`, `insight`, `meme`) so one provider failure does not fail the whole response. Feedback votes use replace-on-repeat for the same `(user, item_type, item_id)`.
 
 ---
 
@@ -289,9 +290,9 @@ Update this table when a phase lands on `master` or a phase branch is the active
 | 1 | Data layer | Done |
 | 2 | Auth + sessions | Done |
 | 3 | Onboarding | Done |
-| 4 | Providers + dashboard API | Next |
-| 5 | Feedback voting API | Not started |
-| 6 | Frontend screens | Not started (shell only) |
+| 4 | Providers + dashboard API | Done |
+| 5 | Feedback voting API | Done (`phase/5-feedback`) |
+| 6 | Frontend screens | Not started (shell only) — Next |
 | 7 | Hardening + delivery | Not started |
 
 ---

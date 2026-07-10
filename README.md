@@ -13,7 +13,7 @@ Personalized crypto investor dashboard MVP: signup/login, first-login onboarding
 
 ## Current status
 
-Phases **0–3** are implemented on `master` (skeleton, data layer, auth, onboarding). Frontend is still a shell. **Phase 4** (providers + dashboard API) is next — see [docs/roadmap.md](docs/roadmap.md).
+Phases **0–4** are implemented on `master` (skeleton, data layer, auth, onboarding, providers + dashboard API). **Phase 5** (feedback voting API) is complete on `phase/5-feedback`. Frontend is still a shell — **Phase 6** is next. See [docs/roadmap.md](docs/roadmap.md).
 
 ## Quick start
 
