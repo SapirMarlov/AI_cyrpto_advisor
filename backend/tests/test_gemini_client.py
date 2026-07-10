@@ -23,7 +23,7 @@ def test_generate_success():
     assert text == "hello from gemini"
     assert post.called
     _, kwargs = post.call_args
-    assert kwargs["params"]["key"] == TestConfig.GEMINI_API_KEY
+    assert kwargs["headers"]["x-goog-api-key"] == TestConfig.GEMINI_API_KEY
     assert kwargs["timeout"] == TestConfig.PROVIDER_HTTP_TIMEOUT
 
 

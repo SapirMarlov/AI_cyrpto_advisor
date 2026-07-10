@@ -28,7 +28,10 @@ def generate(prompt: str, config: Any) -> str:
     try:
         response = requests.post(
             url,
-            params={"key": api_key},
+            headers={
+                "Content-Type": "application/json",
+                "x-goog-api-key": api_key,
+            },
             json={"contents": [{"parts": [{"text": prompt}]}]},
             timeout=timeout,
         )
