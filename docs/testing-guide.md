@@ -42,8 +42,8 @@ Exit code `0` means green. Do not merge a TODO/slice into its phase branch until
 | --- | --- | --- | --- |
 | Backend unit | pytest | `backend/tests/` | Repositories, services, utils, rate limiter, schema |
 | Backend route | pytest + Flask test client | `backend/tests/test_*_routes.py` | Status codes, envelope, cookies, auth guards |
-| Frontend unit | Vitest + Testing Library | `frontend/src/**/*.test.tsx` | Components, pages, client helpers |
-| e2e (planned) | TBD in Phase 6–7 | TBD | Auth → onboarding → dashboard → vote |
+| Frontend unit | Vitest + Testing Library | `frontend/src/**/*.{test.ts,test.tsx}` | Components, pages, client helpers |
+| e2e (Phase 7) | Playwright (planned) | TBD | Full browser auth → onboarding → dashboard → vote |
 
 Minimum per roadmap slice: **at least one acceptance test** that proves the slice goal (unit or route/e2e).
 
@@ -107,12 +107,13 @@ Update this list when adding or removing test modules.
 | `test_dashboard_route.py` | Daily dashboard mixed section outcomes |
 | `test_feedback_service.py` | Vote persist, replace, validation helpers |
 | `test_feedback_routes.py` | `POST /api/feedback/vote` auth + validation |
+| `test_cors.py` | Credentialed CORS headers for Vite origin |
 
-### 3.5 Planned backend tests (Phase 6+)
+### 3.5 Planned backend / e2e (Phase 7)
 
 | Area | Expected files / focus |
 | --- | --- |
-| Frontend e2e (later) | Auth → onboarding → dashboard → vote critical path |
+| Browser e2e | Playwright critical path against running Flask + Vite |
 
 Provider rule: **never** let uncaught provider exceptions reach the route; tests must prove fallbacks.
 
@@ -128,32 +129,34 @@ npm install
 npm test
 ```
 
-Config: `frontend/vite.config.ts` (`environment: "jsdom"`, `setupFiles: ./src/test/setup.ts`). Setup imports `@testing-library/jest-dom`.
+Config: `frontend/vite.config.ts` (`environment: "jsdom"`, `setupFiles: ./src/test/setup.ts`). Setup imports `@testing-library/jest-dom` and mocks `matchMedia` / `ResizeObserver`.
 
 ### 4.2 Conventions
 
 - Colocate tests next to code: `Component.test.tsx` or under `src/` with a clear name.
 - Prefer Testing Library queries by role/label (`getByRole`, `getByLabelText`) over CSS selectors.
 - Parse API envelopes defensively in client tests (`ok` / `data` / `error`).
-- Dashboard panels (Phase 6): test **per-section** loading / empty / error so one failure does not imply a blank page.
+- Dashboard panels: test **per-section** loading / empty / error so one failure does not imply a blank page.
 - Mock `fetch` / `apiClient` — do not call the live Flask server from unit tests.
+- Wrap routed pages in `MemoryRouter` + `AuthProvider` + `ThemeProvider` as needed.
 
 ### 4.3 Current frontend suite (snapshot)
 
 | File | Covers |
 | --- | --- |
-| `src/App.test.tsx` | Shell renders heading |
+| `src/App.test.tsx` | Login route heading with providers |
+| `src/services/apiClient.test.ts` | Envelope parse + request wrappers |
+| `src/auth/AuthContext.test.tsx` | Session load + login refresh |
+| `src/auth/guards.test.tsx` | Guest / onboarding / dashboard redirects |
+| `src/pages/Login.test.tsx` | Login error + success navigation |
+| `src/pages/Onboarding.test.tsx` | Load questions, submit, errors |
+| `src/pages/Dashboard.test.tsx` | Mixed section render + vote paths |
+| `src/components/dashboard/VoteButtons.test.tsx` | Optimistic vote + error revert |
+| `src/components/dashboard/itemIds.test.ts` | Client `item_id` derivation |
 
-### 4.4 Planned frontend / e2e (Phase 6–7)
+### 4.4 Phase 6 acceptance runner
 
-Critical flows to cover when UI lands:
-
-1. Signup / login / logout  
-2. First-login onboarding completion → redirect to dashboard  
-3. Dashboard render with mixed section success (mocked API)  
-4. Vote buttons (up/down) happy + error paths  
-
-Exact e2e runner (Playwright/Cypress/etc.) is chosen when Phase 6 starts; document the choice here when added.
+Phase 6 uses **Vitest + Testing Library** with mocked `apiClient` for the critical flows (auth, onboarding, dashboard, votes). Real browser e2e (Playwright) is deferred to Phase 7.
 
 ---
 

@@ -6,14 +6,14 @@ Personalized crypto investor dashboard MVP: signup/login, first-login onboarding
 
 | Layer | Tech |
 | --- | --- |
-| Frontend | React 18 + TypeScript + Vite |
+| Frontend | React 18 + TypeScript + Vite + Tailwind + shadcn/ui (Cosmic Night) |
 | Backend | Python Flask |
 | Database | SQLite |
 | Auth | Server-side sessions (HTTP-only cookie) |
 
 ## Current status
 
-Phases **0–5** are implemented on `master` (skeleton, data layer, auth, onboarding, providers + dashboard API, feedback voting). Frontend is still a shell — **Phase 6** is next. See [docs/roadmap.md](docs/roadmap.md).
+Phases **0–5** are on `master`. **Phase 6** (frontend screens: auth, onboarding, dashboard + votes) is implemented on `phase/6-frontend`. Phase 7 (hardening) is next. See [docs/roadmap.md](docs/roadmap.md).
 
 ## Quick start
 
@@ -42,10 +42,11 @@ Health check: `GET http://localhost:5000/api/health`
 ```powershell
 cd frontend
 npm install
+# optional: copy .env.example → .env
 npm run dev
 ```
 
-App defaults to Vite’s local URL and calls the API at `http://localhost:5000` (override with `VITE_API_BASE_URL`).
+App defaults to Vite’s local URL (`http://127.0.0.1:5173` or `http://localhost:5173`) and calls the API at `http://127.0.0.1:5000` (override with `VITE_API_BASE_URL`). Prefer `127.0.0.1` over `localhost` on Windows so the browser does not hit IPv6 `::1` while Flask listens on IPv4. Backend CORS allows both Vite origins with credentials (`CORS_ORIGINS`).
 
 ### Tests
 

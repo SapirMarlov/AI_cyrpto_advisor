@@ -35,11 +35,15 @@ AI Crypto advisor/
 ├── frontend/
 │   ├── package.json
 │   ├── vite.config.ts
+│   ├── .env.example          # VITE_API_BASE_URL
 │   └── src/
-│       ├── App.tsx
+│       ├── App.tsx           # Router + guards
 │       ├── main.tsx
+│       ├── auth/             # AuthContext + route guards
+│       ├── pages/            # Login, Signup, Onboarding, Dashboard
+│       ├── components/       # ui (shadcn), dashboard panels, ThemeToggle
 │       ├── services/apiClient.ts
-│       └── pages/            # Phase 6 (planned)
+│       └── theme/            # Cosmic Night light/dark preference
 ├── .venv/                    # Project-local Python venv (gitignored)
 └── .cursor/rules/            # Agent conventions
 ```
@@ -86,7 +90,7 @@ Secrets live in `backend/.env` (gitignored). Prefer documenting new keys in `bac
 | `DATABASE_PATH` | backend | `backend/instance/app.db` |
 | `TEST_DATABASE_PATH` | backend tests | In-memory SQLite URI when unset |
 | `PRICE_PROVIDER` | backend | `coingecko` — see [providers.md](./providers.md) |
-| `NEWS_PROVIDER` | backend | `cryptopanic` (or `rss`) |
+| `NEWS_PROVIDER` | backend | `rss` (Cointelegraph; or `cryptopanic`) |
 | `AI_PROVIDER` | backend | `gemini` (or `template`) |
 | `MEME_PROVIDER` | backend | `reddit_gemini` |
 | `PROVIDER_HTTP_TIMEOUT` | backend | `5` seconds |
@@ -94,7 +98,8 @@ Secrets live in `backend/.env` (gitignored). Prefer documenting new keys in `bac
 | `GEMINI_API_KEY` | backend | Required for `AI_PROVIDER=gemini` and meme selection |
 | `CRYPTOPANIC_API_KEY` | backend | Required for `NEWS_PROVIDER=cryptopanic` |
 | `COINGECKO_DEMO_API_KEY` / `COINGECKO_PRO_API_KEY` | backend | Optional; public API works without keys |
-| `VITE_API_BASE_URL` | frontend | `http://localhost:5000` |
+| `CORS_ORIGINS` | backend | Comma-separated origins; default `http://localhost:5173,http://127.0.0.1:5173` |
+| `VITE_API_BASE_URL` | frontend | `http://127.0.0.1:5000` (prefer over `localhost` on Windows/IPv6) |
 
 Session policy (code defaults in `backend/app/config.py`):
 
@@ -124,7 +129,15 @@ cd frontend
 npm run dev
 ```
 
-API client uses `credentials: "include"` so session cookies work cross-origin in local dev. Ensure the backend allows the frontend origin once CORS is configured (add/adjust when wiring real UI calls).
+API client uses `credentials: "include"` so session cookies work cross-origin in local dev. Flask-CORS is enabled with `supports_credentials=True` for origins in `CORS_ORIGINS` (default includes both `http://localhost:5173` and `http://127.0.0.1:5173`). Use `127.0.0.1` for the API base URL so browsers do not try IPv6 `localhost` (`::1`) against an IPv4-only Flask bind.
+
+### Frontend routes
+
+| Path | Guard | Page |
+| --- | --- | --- |
+| `/login`, `/signup` | Guest only | Auth forms |
+| `/onboarding` | Authed + incomplete onboarding | Quiz |
+| `/dashboard` | Authed + onboarding complete | Daily panels + votes |
 
 ### Useful scripts
 
@@ -197,9 +210,9 @@ Helpers: `backend/app/utils/response.py`. Frontend types: `frontend/src/services
 
 | Method | Path | Phase |
 | --- | --- | --- |
-| — | Frontend screens (auth, onboarding, dashboard + vote UI) | 6 |
+| — | Hardening, browser e2e, gotchas | 7 |
 
-Dashboard returns **per-section** payloads (`news`, `prices`, `insight`, `meme`) so one provider failure does not fail the whole response. Feedback votes use replace-on-repeat for the same `(user, item_type, item_id)`.
+Dashboard returns **per-section** payloads (`news`, `prices`, `insight`, `meme`) so one provider failure does not fail the whole response. Feedback votes use replace-on-repeat for the same `(user, item_type, item_id)`. Client derives vote `item_id` from news `url`, meme `permalink`/`image_url`, and `insight-{YYYY-MM-DD}`.
 
 ---
 
@@ -292,8 +305,8 @@ Update this table when a phase lands on `master` or a phase branch is the active
 | 3 | Onboarding | Done |
 | 4 | Providers + dashboard API | Done |
 | 5 | Feedback voting API | Done |
-| 6 | Frontend screens | Not started (shell only) — Next |
-| 7 | Hardening + delivery | Not started |
+| 6 | Frontend screens | Done on `phase/6-frontend` (ask before merge to `master`) |
+| 7 | Hardening + delivery | Not started — Next |
 
 ---
 
@@ -302,6 +315,7 @@ Update this table when a phase lands on `master` or a phase branch is the active
 - **Wrong Python env:** always activate `.venv` before `pip` / `pytest` / `run.py`.
 - **Running Flask from wrong cwd:** `DATABASE_PATH` default is relative (`backend/instance/app.db`); prefer running from repo root as documented.
 - **Session cookies in browser:** frontend must use `credentials: "include"`; cookie is not in `localStorage`.
+- **CORS in local dev:** Vite origin must be listed in `CORS_ORIGINS`; Flask uses `supports_credentials=True`.
 - **Provider failures:** never let third-party exceptions bubble to the route; use section-level fallbacks (Phase 4).
 - **Secrets:** `.env` is gitignored; rotate any key that was ever committed or pasted into chat logs.
 
