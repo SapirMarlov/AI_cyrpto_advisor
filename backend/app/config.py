@@ -44,7 +44,7 @@ class Config:
     MEME_PROVIDER = os.getenv("MEME_PROVIDER", "reddit_gemini")
     CRYPTOPANIC_API_KEY = os.getenv("CRYPTOPANIC_API_KEY", "")
     GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-    GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
+    GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-flash-lite-latest")
     COINGECKO_DEMO_API_KEY = os.getenv("COINGECKO_DEMO_API_KEY", "")
     COINGECKO_PRO_API_KEY = os.getenv("COINGECKO_PRO_API_KEY", "")
     COINGECKO_USER_AGENT = os.getenv(

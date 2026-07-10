@@ -90,7 +90,7 @@ Shared knobs:
 | `PROVIDER_HTTP_TIMEOUT` | Outbound HTTP timeout (seconds) |
 | `PROVIDER_CACHE_TTL` | Cache TTL for successful live fetches (seconds) |
 
-Provider-specific keys (`CRYPTOPANIC_API_KEY`, `GEMINI_API_KEY`, CoinGecko keys, Reddit settings) stay in `.env` as documented in `.env.example`.
+Provider-specific keys (`CRYPTOPANIC_API_KEY`, `GEMINI_API_KEY`, `GEMINI_MODEL`, CoinGecko keys, Reddit settings) stay in `.env` as documented in `.env.example`. Default model is `gemini-flash-lite-latest`; older ids like `gemini-2.0-flash` may return HTTP 429 with free-tier `limit: 0` and force insight `template_fallback`.
 
 **Reddit memes:** `reddit_gemini` discovers posts via keyless Atom RSS (`/r/{sub}/.rss`). Reddit’s unauthenticated `.json` endpoints return HTTP 403, so do not switch back to JSON without OAuth credentials. Keep `REDDIT_MEME_SUBREDDITS` short (meme-focused subs only) — extra calls hit anonymous HTTP 429 rate limits.
 

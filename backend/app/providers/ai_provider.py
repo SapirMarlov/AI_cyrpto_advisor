@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 from app.providers.base_provider import BaseProvider
 from app.providers.gemini_client import GeminiError, generate
+
+logger = logging.getLogger(__name__)
 
 
 def _prefs_summary(context: dict) -> str:
@@ -88,8 +91,9 @@ class GeminiInsightProvider(BaseProvider):
         try:
             text = generate(prompt, self.config)
             return {"insight_text": text, "generated_by": "gemini"}
-        except GeminiError:
+        except GeminiError as exc:
             # Soft fallback so the insight section still succeeds.
+            logger.warning("gemini insight failed, using template: %s", exc)
             result = build_template_insight(context)
             result["generated_by"] = "template_fallback"
             return result

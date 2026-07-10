@@ -23,6 +23,7 @@ Short operational notes for the next iteration. Prefer fixing the root cause whe
 - Every section uses live → cache → static fallback. Client-facing section errors are generic (`Provider temporarily unavailable`); details stay in server logs.
 - Timeouts default to `PROVIDER_HTTP_TIMEOUT` (5s). Cache TTL is `PROVIDER_CACHE_TTL` (300s).
 - Keys: `GEMINI_API_KEY` required for `AI_PROVIDER=gemini` and `MEME_PROVIDER=reddit_gemini`. `CRYPTOPANIC_API_KEY` only for `NEWS_PROVIDER=cryptopanic`. CoinGecko works keyless; demo/pro keys raise limits.
+- Prefer `GEMINI_MODEL=gemini-flash-lite-latest` (or another current free-tier alias). Older ids like `gemini-2.0-flash` can return HTTP 429 with `limit: 0` even when the key is valid — that is a model/quota mismatch, not a temporary rate limit. Insight then shows `generated_by: template_fallback`.
 - Offline / Playwright: set `PRICE_PROVIDER=static`, `NEWS_PROVIDER=static`, `AI_PROVIDER=template`, `MEME_PROVIDER=static`.
 - Reddit anonymous rate limits (HTTP 429) are common if too many subreddits are configured — keep `REDDIT_MEME_SUBREDDITS` short.
 

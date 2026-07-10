@@ -49,8 +49,9 @@ def test_generate_timeout():
 def test_generate_non_200():
     response = MagicMock()
     response.status_code = 500
+    response.json.return_value = {"error": {"message": "server exploded\nmore detail"}}
     with patch("app.providers.gemini_client.requests.post", return_value=response):
-        with pytest.raises(GeminiError, match="HTTP 500"):
+        with pytest.raises(GeminiError, match="HTTP 500: server exploded"):
             generate("prompt", TestConfig)
 
 

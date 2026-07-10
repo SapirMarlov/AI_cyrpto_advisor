@@ -15,7 +15,7 @@ def generate(prompt: str, config: Any) -> str:
     if not api_key.strip():
         raise GeminiError("GEMINI_API_KEY is not configured")
 
-    model = getattr(config, "GEMINI_MODEL", "gemini-1.5-flash")
+    model = getattr(config, "GEMINI_MODEL", "gemini-flash-lite-latest")
     timeout = float(getattr(config, "PROVIDER_HTTP_TIMEOUT", 5))
     url = (
         f"https://generativelanguage.googleapis.com/v1beta/models/"
@@ -38,7 +38,14 @@ def generate(prompt: str, config: Any) -> str:
         raise GeminiError(f"gemini request failed: {exc}") from exc
 
     if response.status_code != 200:
-        raise GeminiError(f"gemini returned HTTP {response.status_code}")
+        detail = ""
+        try:
+            message = (response.json().get("error") or {}).get("message") or ""
+            if isinstance(message, str) and message.strip():
+                detail = f": {message.splitlines()[0][:160]}"
+        except (ValueError, AttributeError, TypeError):
+            detail = ""
+        raise GeminiError(f"gemini returned HTTP {response.status_code}{detail}")
 
     try:
         payload = response.json()
