@@ -26,7 +26,7 @@ PROVIDER_IMPLEMENTATIONS = {
 
 _DEFAULTS = {
     "prices": "coingecko",
-    "news": "cryptopanic",
+    "news": "rss",
     "insight": "gemini",
     "meme": "reddit_gemini",
 }

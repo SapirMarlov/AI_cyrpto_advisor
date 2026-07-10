@@ -145,7 +145,7 @@ class RssNewsProvider(BaseProvider):
             title = (item.findtext("title") or "").strip()
             link = (item.findtext("link") or "").strip()
             pub_date = item.findtext("pubDate")
-            source = (item.findtext("source") or "rss").strip() or "rss"
+            source = (item.findtext("source") or "Cointelegraph").strip() or "Cointelegraph"
             if not title or not link:
                 continue
             items.append(

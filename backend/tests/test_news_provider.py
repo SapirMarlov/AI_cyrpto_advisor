@@ -96,6 +96,8 @@ def test_rss_success():
 
     assert len(data["items"]) == 2
     assert data["items"][0]["url"] == "https://example.com/btc"
+    assert data["items"][0]["source"] == "CoinTelegraph"
+    assert data["items"][1]["source"] == "Cointelegraph"
 
 
 def test_rss_malformed():

@@ -22,7 +22,7 @@ Defaults (if the env var is missing or names an unknown provider):
 | Section | Default |
 | --- | --- |
 | `prices` | `coingecko` |
-| `news` | `cryptopanic` |
+| `news` | `rss` (Cointelegraph) |
 | `insight` | `gemini` |
 | `meme` | `reddit_gemini` |
 
@@ -78,7 +78,8 @@ PROVIDER_IMPLEMENTATIONS = {
 
 | Goal | Change |
 | --- | --- |
-| News without CryptoPanic key | `NEWS_PROVIDER=rss` |
+| News via Cointelegraph RSS (default) | `NEWS_PROVIDER=rss` |
+| News via CryptoPanic | `NEWS_PROVIDER=cryptopanic` (+ API key) |
 | Insight without Gemini key | `AI_PROVIDER=template` |
 | Prices | Keep `PRICE_PROVIDER=coingecko` (only option today) |
 

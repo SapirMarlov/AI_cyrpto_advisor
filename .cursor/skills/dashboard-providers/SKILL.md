@@ -33,16 +33,16 @@ Do not invent a new selector env var unless adding a **new section**. Reuse the 
 | Section | Env var | Names |
 | --- | --- | --- |
 | `prices` | `PRICE_PROVIDER` | `coingecko` |
-| `news` | `NEWS_PROVIDER` | `cryptopanic`, `rss` |
+| `news` | `NEWS_PROVIDER` | `rss` (Cointelegraph), `cryptopanic` |
 | `insight` | `AI_PROVIDER` | `gemini`, `template` |
 | `meme` | `MEME_PROVIDER` | `reddit_gemini` (Reddit Atom RSS + Gemini) |
 
-Unknown env values fall back to section defaults in `registry.py` (`_DEFAULTS`).
+Unknown env values fall back to section defaults in `registry.py` (`_DEFAULTS`). News default is `rss` (Cointelegraph).
 
 Common swaps:
 
 ```env
-NEWS_PROVIDER=rss
+NEWS_PROVIDER=cryptopanic
 AI_PROVIDER=template
 ```
 

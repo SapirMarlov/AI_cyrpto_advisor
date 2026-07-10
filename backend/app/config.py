@@ -31,7 +31,7 @@ class Config:
     PROVIDER_HTTP_TIMEOUT = float(os.getenv("PROVIDER_HTTP_TIMEOUT", "5"))
     PROVIDER_CACHE_TTL = int(os.getenv("PROVIDER_CACHE_TTL", "300"))
     PRICE_PROVIDER = os.getenv("PRICE_PROVIDER", "coingecko")
-    NEWS_PROVIDER = os.getenv("NEWS_PROVIDER", "cryptopanic")
+    NEWS_PROVIDER = os.getenv("NEWS_PROVIDER", "rss")
     AI_PROVIDER = os.getenv("AI_PROVIDER", "gemini")
     MEME_PROVIDER = os.getenv("MEME_PROVIDER", "reddit_gemini")
     CRYPTOPANIC_API_KEY = os.getenv("CRYPTOPANIC_API_KEY", "")
