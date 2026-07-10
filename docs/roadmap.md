@@ -167,7 +167,7 @@ Slice P6-S3: Dashboard page and panels
 ### Phase 7 - Hardening and Delivery
 **Objective:** Ensure MVP reliability and handoff readiness.
 
-**Status:** Done on `phase/7-hardening` (ask before merge to `master`).
+**Status:** Done on `master`.
 
 Slice P7-S1: Validation + security pass — done
 - Safe global 404/500 envelopes; sanitized provider client errors; cookie/session negative tests.

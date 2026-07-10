@@ -13,7 +13,7 @@ Personalized crypto investor dashboard MVP: signup/login, first-login onboarding
 
 ## Current status
 
-MVP Phases **0–7** are complete on `phase/7-hardening` (includes Phase 6 frontend + Phase 7 hardening/e2e/gotchas). Ask before merging the phase branch into `master`. See [docs/roadmap.md](docs/roadmap.md) and [docs/gotchas.md](docs/gotchas.md).
+MVP Phases **0–7** are complete on `master`. See [docs/roadmap.md](docs/roadmap.md) and [docs/gotchas.md](docs/gotchas.md).
 
 ## Quick start
 

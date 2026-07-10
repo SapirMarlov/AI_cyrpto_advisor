@@ -305,8 +305,8 @@ Update this table when a phase lands on `master` or a phase branch is the active
 | 3 | Onboarding | Done |
 | 4 | Providers + dashboard API | Done |
 | 5 | Feedback voting API | Done |
-| 6 | Frontend screens | Done on `phase/7-hardening` (with Phase 7; ask before merge to `master`) |
-| 7 | Hardening + delivery | Done on `phase/7-hardening` — ask before merge to `master` |
+| 6 | Frontend screens | Done |
+| 7 | Hardening + delivery | Done |
 
 ---
 
