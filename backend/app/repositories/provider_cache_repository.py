@@ -6,10 +6,12 @@ from datetime import datetime, timedelta, timezone
 
 
 def _utc_now() -> datetime:
+    """Return the current UTC time."""
     return datetime.now(timezone.utc)
 
 
 def _parse_expires_at(value: str) -> datetime:
+    """Parse a stored expires_at timestamp."""
     # Stored as ISO-8601; accept trailing Z.
     normalized = value.replace("Z", "+00:00")
     parsed = datetime.fromisoformat(normalized)
@@ -19,10 +21,7 @@ def _parse_expires_at(value: str) -> datetime:
 
 
 def get_cached(conn: sqlite3.Connection, cache_key: str) -> dict | None:
-    """
-    Return {"payload": dict, "expired": bool, "expires_at": str} or None if missing.
-    Stale (expired) entries are still returned so callers can use them as fallback.
-    """
+    """Return a cache entry, including stale ones, or None if missing."""
     row = conn.execute(
         """
         SELECT cache_key, payload_json, expires_at, created_at
@@ -52,6 +51,7 @@ def set_cached(
     payload: dict,
     ttl_seconds: int,
 ) -> None:
+    """Store or replace a provider cache entry."""
     expires_at = (_utc_now() + timedelta(seconds=ttl_seconds)).isoformat()
     payload_json = json.dumps(payload)
 

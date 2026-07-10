@@ -12,12 +12,14 @@ onboarding_bp = Blueprint("onboarding", __name__, url_prefix="/api/onboarding")
 @onboarding_bp.get("/questions")
 @login_required
 def get_questions():
+    """Return the onboarding quiz questions."""
     return success_response({"questions": onboarding_service.get_questions()})
 
 
 @onboarding_bp.post("/answers")
 @login_required
 def save_answers():
+    """Save onboarding answers for the current user."""
     try:
         answers = validate_onboarding_answers(
             request.get_json(silent=True),

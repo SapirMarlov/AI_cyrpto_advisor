@@ -41,10 +41,12 @@ QUESTIONS = [
 
 
 def get_questions() -> list[dict]:
+    """Return the onboarding quiz questions."""
     return QUESTIONS
 
 
 def save_answers(conn: sqlite3.Connection, user_id: int, answers: dict) -> dict:
+    """Save quiz answers and mark onboarding complete."""
     return save_preferences(
         conn,
         user_id=user_id,

@@ -11,6 +11,8 @@ except ImportError:
 
 
 class Config:
+    """Default app settings from environment variables."""
+
     ENV = os.getenv("FLASK_ENV", "development")
     TESTING = False
     DEBUG = ENV == "development"
@@ -52,6 +54,8 @@ class Config:
 
 
 class TestConfig(Config):
+    """Settings used by the test suite."""
+
     TESTING = True
     DEBUG = False
     DATABASE_PATH = os.getenv(

@@ -7,6 +7,7 @@ from app.providers.gemini_client import GeminiError, generate
 
 
 def _prefs_summary(context: dict) -> str:
+    """Build a short text summary of user preferences."""
     assets = context.get("interested_assets") or []
     investor_type = context.get("investor_type") or "unknown"
     content = context.get("content_preferences") or []
@@ -18,6 +19,7 @@ def _prefs_summary(context: dict) -> str:
 
 
 def _prices_summary(context: dict) -> str:
+    """Build a short text summary of price data."""
     prices = (context.get("prices") or {}).get("prices") or context.get("prices") or {}
     if not isinstance(prices, dict) or not prices:
         return "no live prices"
@@ -32,6 +34,7 @@ def _prices_summary(context: dict) -> str:
 
 
 def build_template_insight(context: dict) -> dict:
+    """Build a simple template insight from preferences."""
     assets = context.get("interested_assets") or ["bitcoin"]
     investor_type = context.get("investor_type") or "hodler"
     focus = ", ".join(assets[:3])
@@ -44,27 +47,36 @@ def build_template_insight(context: dict) -> dict:
 
 
 class TemplateInsightProvider(BaseProvider):
+    """Insight provider that uses a fixed text template."""
+
     section = "insight"
     name = "template"
 
     def __init__(self, config: Any | None = None):
+        """Store provider config."""
         self.config = config
 
     def fetch(self, context: dict) -> dict:
+        """Return a template insight."""
         return build_template_insight(context)
 
     def static_fallback(self, context: dict) -> dict:
+        """Return a template insight as fallback."""
         return build_template_insight(context)
 
 
 class GeminiInsightProvider(BaseProvider):
+    """Insight provider that uses Gemini, with template fallback."""
+
     section = "insight"
     name = "gemini"
 
     def __init__(self, config: Any | None = None):
+        """Store provider config."""
         self.config = config
 
     def fetch(self, context: dict) -> dict:
+        """Generate insight with Gemini, or fall back to template."""
         prompt = (
             "You are a concise crypto market assistant. "
             "Write 2-3 short sentences of educational insight (not financial advice) "
@@ -83,4 +95,5 @@ class GeminiInsightProvider(BaseProvider):
             return result
 
     def static_fallback(self, context: dict) -> dict:
+        """Return a template insight as fallback."""
         return build_template_insight(context)

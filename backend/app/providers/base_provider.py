@@ -10,6 +10,8 @@ logger = logging.getLogger(__name__)
 
 
 class BaseProvider(ABC):
+    """Base class for dashboard section providers."""
+
     section: str = ""
     name: str = ""
 
@@ -19,9 +21,10 @@ class BaseProvider(ABC):
 
     @abstractmethod
     def static_fallback(self, context: dict) -> dict:
-        """Return a safe static payload when live and cache both fail."""
+        """Return a safe static payload when live and cache fail."""
 
     def cache_key(self, context: dict) -> str:
+        """Build the cache key for this provider and context."""
         suffix = context.get("cache_suffix", "default")
         user_id = context.get("user_id", "anon")
         return f"{self.section}:{self.name}:{user_id}:{suffix}"
@@ -33,10 +36,7 @@ def run_provider(
     conn: Any,
     config: Any,
 ) -> dict:
-    """
-    Run a provider with live -> cache -> static fallback.
-    Never raises to the caller.
-    """
+    """Run a provider with live, then cache, then static fallback."""
     ttl = int(getattr(config, "PROVIDER_CACHE_TTL", 300))
     key = provider.cache_key(context)
 

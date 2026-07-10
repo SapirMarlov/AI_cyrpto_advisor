@@ -14,6 +14,7 @@ login_rate_limiter = None
 
 
 def init_auth_routes(app):
+    """Create the login rate limiter from app config."""
     global login_rate_limiter
     login_rate_limiter = LoginRateLimiter(
         max_attempts=app.config["LOGIN_RATE_MAX_ATTEMPTS"],
@@ -22,6 +23,7 @@ def init_auth_routes(app):
 
 
 def _set_session_cookie(response, token: str):
+    """Attach the session cookie to a response."""
     response.set_cookie(
         current_app.config["SESSION_COOKIE_NAME"],
         token,
@@ -34,6 +36,7 @@ def _set_session_cookie(response, token: str):
 
 
 def _clear_session_cookie(response):
+    """Clear the session cookie on a response."""
     response.set_cookie(
         current_app.config["SESSION_COOKIE_NAME"],
         "",
@@ -46,12 +49,14 @@ def _clear_session_cookie(response):
 
 
 def _auth_response(user: dict, token: str, status_code: int):
+    """Build a success response with a session cookie."""
     response = make_response(success_response({"user": user}, status_code))
     return _set_session_cookie(response, token)
 
 
 @auth_bp.post("/signup")
 def signup():
+    """Register a new user and start a session."""
     try:
         data = validate_auth_payload(request.get_json(silent=True), {"email", "password"})
     except ValidationError as exc:
@@ -67,6 +72,7 @@ def signup():
 
 @auth_bp.post("/login")
 def login():
+    """Log in an existing user and start a session."""
     try:
         data = validate_auth_payload(request.get_json(silent=True), {"email", "password"})
     except ValidationError as exc:
@@ -88,6 +94,7 @@ def login():
 @auth_bp.post("/logout")
 @login_required
 def logout():
+    """End the current session and clear the cookie."""
     token = request.cookies.get(current_app.config["SESSION_COOKIE_NAME"])
     auth_service.logout(get_db(), token)
 
@@ -98,6 +105,7 @@ def logout():
 @auth_bp.get("/me")
 @login_required
 def me():
+    """Return the current user and onboarding status."""
     preferences = get_preferences(get_db(), g.current_user["id"])
     onboarding_completed = bool(
         preferences and preferences.get("onboarding_completed")

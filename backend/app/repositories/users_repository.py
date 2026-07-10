@@ -2,14 +2,16 @@ import sqlite3
 
 
 class DuplicateEmailError(Exception):
-    pass
+    """Raised when creating a user with an email that already exists."""
 
 
 def _normalize_email(email: str) -> str:
+    """Normalize email for storage and lookup."""
     return email.strip().lower()
 
 
 def _row_to_dict(row: sqlite3.Row) -> dict:
+    """Convert a users row to a dict."""
     return {
         "id": row["id"],
         "email": row["email"],
@@ -19,6 +21,7 @@ def _row_to_dict(row: sqlite3.Row) -> dict:
 
 
 def create_user(conn: sqlite3.Connection, email: str, password_hash: str) -> dict:
+    """Create a user and return the new row."""
     normalized_email = _normalize_email(email)
 
     try:
@@ -37,6 +40,7 @@ def create_user(conn: sqlite3.Connection, email: str, password_hash: str) -> dic
 
 
 def get_user_by_email(conn: sqlite3.Connection, email: str) -> dict | None:
+    """Find a user by email, or return None."""
     normalized_email = _normalize_email(email)
     row = conn.execute(
         "SELECT id, email, password_hash, created_at FROM users WHERE email = ?",
@@ -50,6 +54,7 @@ def get_user_by_email(conn: sqlite3.Connection, email: str) -> dict | None:
 
 
 def get_user_by_id(conn: sqlite3.Connection, user_id: int) -> dict | None:
+    """Find a user by id, or return None."""
     row = conn.execute(
         "SELECT id, email, password_hash, created_at FROM users WHERE id = ?",
         (user_id,),

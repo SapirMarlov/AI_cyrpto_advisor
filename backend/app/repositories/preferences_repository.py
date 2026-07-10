@@ -3,6 +3,7 @@ import sqlite3
 
 
 def _row_to_dict(row: sqlite3.Row) -> dict:
+    """Convert a preferences row to a dict."""
     return {
         "user_id": row["user_id"],
         "answers": json.loads(row["answers_json"]),
@@ -17,6 +18,7 @@ def save_preferences(
     answers: dict,
     onboarding_completed: bool,
 ) -> dict:
+    """Insert or update onboarding preferences for a user."""
     answers_json = json.dumps(answers)
 
     conn.execute(
@@ -36,6 +38,7 @@ def save_preferences(
 
 
 def get_preferences(conn: sqlite3.Connection, user_id: int) -> dict | None:
+    """Get preferences for a user, or return None."""
     row = conn.execute(
         """
         SELECT user_id, answers_json, onboarding_completed, updated_at

@@ -11,7 +11,7 @@ from app.repositories.preferences_repository import get_preferences
 
 
 def normalize_config(config: Any) -> Any:
-    """Allow providers to use attribute access with Flask's dict-like config."""
+    """Allow attribute access on Flask's dict-like config."""
     if isinstance(config, dict):
         return SimpleNamespace(
             **{k: v for k, v in config.items() if isinstance(k, str) and k.isupper()}
@@ -20,6 +20,7 @@ def normalize_config(config: Any) -> Any:
 
 
 def _build_context(user_id: int, preferences: dict | None) -> dict:
+    """Build provider context from user preferences."""
     answers = (preferences or {}).get("answers") or {}
     interested = answers.get("interested_assets") or ["bitcoin", "ethereum"]
     if isinstance(interested, str):
@@ -46,6 +47,7 @@ def get_daily_dashboard(
     config: Any,
     registry: dict | None = None,
 ) -> dict:
+    """Build the daily dashboard sections for one user."""
     config = normalize_config(config)
     preferences = get_preferences(conn, user_id)
     context = _build_context(user_id, preferences)

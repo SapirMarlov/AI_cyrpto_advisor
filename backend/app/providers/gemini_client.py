@@ -6,14 +6,11 @@ import requests
 
 
 class GeminiError(Exception):
-    """Raised when a Gemini API call fails so callers can fall back."""
+    """Raised when a Gemini API call fails."""
 
 
 def generate(prompt: str, config: Any) -> str:
-    """
-    Call Gemini generateContent and return the first text part.
-    Raises GeminiError on missing key, HTTP failure, timeout, or malformed response.
-    """
+    """Call Gemini and return the first text part."""
     api_key = getattr(config, "GEMINI_API_KEY", "") or ""
     if not api_key.strip():
         raise GeminiError("GEMINI_API_KEY is not configured")

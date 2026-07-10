@@ -13,14 +13,16 @@ from app.repositories.users_repository import DuplicateEmailError, create_user, 
 
 
 class EmailExistsError(Exception):
-    pass
+    """Raised when signup uses an email that already exists."""
 
 
 def hash_password(password: str) -> str:
+    """Hash a password with bcrypt."""
     return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
 
 def verify_password(password: str, password_hash: str) -> bool:
+    """Check a password against a bcrypt hash."""
     try:
         return bcrypt.checkpw(password.encode("utf-8"), password_hash.encode("utf-8"))
     except (ValueError, TypeError):
@@ -28,14 +30,17 @@ def verify_password(password: str, password_hash: str) -> bool:
 
 
 def _parse_timestamp(value: str) -> datetime:
+    """Parse a stored UTC timestamp."""
     return datetime.fromisoformat(value).replace(tzinfo=timezone.utc)
 
 
 def _public_user(user: dict) -> dict:
+    """Return only public user fields."""
     return {"id": user["id"], "email": user["email"]}
 
 
 def signup(conn, email: str, password: str) -> dict:
+    """Create a user and a new session."""
     try:
         user = create_user(conn, email, hash_password(password))
     except DuplicateEmailError as exc:
@@ -46,6 +51,7 @@ def signup(conn, email: str, password: str) -> dict:
 
 
 def login(conn, email: str, password: str) -> dict | None:
+    """Log in with email and password, or return None."""
     user = get_user_by_email(conn, email)
     if user is None or not verify_password(password, user["password_hash"]):
         return None
@@ -55,6 +61,7 @@ def login(conn, email: str, password: str) -> dict | None:
 
 
 def logout(conn, token: str) -> None:
+    """Delete the session for the given token."""
     delete_session(conn, token)
 
 
@@ -64,6 +71,7 @@ def resolve_session(
     idle_seconds: int,
     absolute_seconds: int,
 ) -> dict | None:
+    """Validate a session and return the public user, or None."""
     session = get_session(conn, token)
     if session is None:
         return None

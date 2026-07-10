@@ -11,6 +11,7 @@ dashboard_bp = Blueprint("dashboard", __name__, url_prefix="/api/dashboard")
 @dashboard_bp.get("/daily")
 @login_required
 def get_daily_dashboard():
+    """Return the daily dashboard for the current user."""
     data = dashboard_service.get_daily_dashboard(
         get_db(),
         g.current_user["id"],

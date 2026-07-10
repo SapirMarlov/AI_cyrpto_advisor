@@ -5,12 +5,16 @@ MIN_PASSWORD_LENGTH = 8
 
 
 class ValidationError(Exception):
+    """Raised when a request payload fails validation."""
+
     def __init__(self, message: str):
+        """Store the validation error message."""
         super().__init__(message)
         self.message = message
 
 
 def validate_auth_payload(payload: dict | None, allowed_fields: set[str]) -> dict:
+    """Validate signup/login JSON and return cleaned fields."""
     if payload is None or not isinstance(payload, dict):
         raise ValidationError("Request body must be a JSON object")
 
@@ -38,6 +42,7 @@ def validate_auth_payload(payload: dict | None, allowed_fields: set[str]) -> dic
 
 
 def validate_onboarding_answers(payload: dict | None, questions: list[dict]) -> dict:
+    """Validate onboarding answers against the quiz questions."""
     if payload is None or not isinstance(payload, dict):
         raise ValidationError("Request body must be a JSON object")
 

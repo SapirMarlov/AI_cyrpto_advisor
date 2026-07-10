@@ -33,6 +33,7 @@ _DEFAULTS = {
 
 
 def _selector(config: Any, section: str) -> str:
+    """Pick the provider name for a section from config."""
     attr = {
         "prices": "PRICE_PROVIDER",
         "news": "NEWS_PROVIDER",
@@ -46,7 +47,7 @@ def _selector(config: Any, section: str) -> str:
 
 
 def build_registry(config: Any) -> dict:
-    """Return {section: provider_instance} selected from config."""
+    """Build provider instances for each dashboard section."""
     registry = {}
     for section in ("prices", "news", "insight", "meme"):
         name = _selector(config, section)

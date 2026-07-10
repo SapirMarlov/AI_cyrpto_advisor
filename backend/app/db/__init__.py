@@ -5,6 +5,7 @@ from app.db.migrate import apply_schema
 
 
 def init_db(app) -> None:
+    """Create the database folder if needed and apply the schema."""
     database_path = app.config["DATABASE_PATH"]
 
     if database_path != ":memory:" and not database_path.startswith("file:"):

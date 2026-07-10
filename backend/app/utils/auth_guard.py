@@ -8,8 +8,11 @@ from app.utils.response import error_response
 
 
 def login_required(view):
+    """Require a valid session cookie before running the view."""
+
     @wraps(view)
     def wrapped(*args, **kwargs):
+        """Check the session and call the view if allowed."""
         token = request.cookies.get(current_app.config["SESSION_COOKIE_NAME"])
         if not token:
             return error_response("unauthorized", "Authentication required", 401)

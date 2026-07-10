@@ -22,6 +22,7 @@ DEFAULT_USER_AGENT = "AICryptoAdvisor/0.1 (educational; +https://localhost)"
 
 
 def _resolve_coin_ids(interested_assets: list[str] | None) -> list[str]:
+    """Map quiz asset ids to CoinGecko coin ids."""
     assets = interested_assets or list(ASSET_TO_COINGECKO.keys())
     ids = []
     for asset in assets:
@@ -32,6 +33,7 @@ def _resolve_coin_ids(interested_assets: list[str] | None) -> list[str]:
 
 
 def _map_response(raw: dict, interested_assets: list[str] | None) -> dict:
+    """Map CoinGecko simple/price JSON to our price shape."""
     assets = interested_assets or list(ASSET_TO_COINGECKO.keys())
     prices: dict[str, dict] = {}
     for asset in assets:
@@ -55,12 +57,7 @@ def _map_response(raw: dict, interested_assets: list[str] | None) -> dict:
 
 
 def _request_settings(config: Any | None) -> tuple[str, dict[str, str]]:
-    """
-    Resolve base URL + auth headers.
-    - Pro key  -> pro-api.coingecko.com + x-cg-pro-api-key
-    - Demo key -> api.coingecko.com + x-cg-demo-api-key
-    - Else     -> keyless public API
-    """
+    """Resolve CoinGecko URL and auth headers from config."""
     pro_key = (getattr(config, "COINGECKO_PRO_API_KEY", "") or "").strip()
     demo_key = (getattr(config, "COINGECKO_DEMO_API_KEY", "") or "").strip()
     user_agent = (
@@ -86,6 +83,7 @@ def _http_get(
     headers: dict[str, str],
     timeout: float,
 ) -> requests.Response:
+    """GET with one retry on network errors."""
     last_error: Exception | None = None
     for _ in range(2):  # initial try + 1 retry
         try:
@@ -96,13 +94,17 @@ def _http_get(
 
 
 class CoinGeckoPriceProvider(BaseProvider):
+    """Price provider backed by CoinGecko simple/price."""
+
     section = "prices"
     name = "coingecko"
 
     def __init__(self, config: Any | None = None):
+        """Store provider config."""
         self.config = config
 
     def fetch(self, context: dict) -> dict:
+        """Fetch live prices for the user's assets."""
         timeout = float(getattr(self.config, "PROVIDER_HTTP_TIMEOUT", 5))
         interested = context.get("interested_assets")
         coin_ids = _resolve_coin_ids(interested)
@@ -134,6 +136,7 @@ class CoinGeckoPriceProvider(BaseProvider):
         return _map_response(raw, interested)
 
     def static_fallback(self, context: dict) -> dict:
+        """Return empty price placeholders when live data fails."""
         interested = context.get("interested_assets") or ["bitcoin", "ethereum"]
         prices = {
             asset: {

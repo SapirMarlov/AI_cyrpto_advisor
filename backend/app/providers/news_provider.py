@@ -13,6 +13,7 @@ DEFAULT_RSS_URL = "https://cointelegraph.com/rss"
 
 
 def _http_get(url: str, *, params: dict | None = None, timeout: float = 5) -> requests.Response:
+    """GET with one retry on network errors."""
     last_error: Exception | None = None
     for _ in range(2):
         try:
@@ -23,6 +24,7 @@ def _http_get(url: str, *, params: dict | None = None, timeout: float = 5) -> re
 
 
 def _static_news_fallback() -> dict:
+    """Return a safe static news item."""
     return {
         "items": [
             {
@@ -37,13 +39,17 @@ def _static_news_fallback() -> dict:
 
 
 class CryptoPanicNewsProvider(BaseProvider):
+    """News provider backed by CryptoPanic."""
+
     section = "news"
     name = "cryptopanic"
 
     def __init__(self, config: Any | None = None):
+        """Store provider config."""
         self.config = config
 
     def fetch(self, context: dict) -> dict:
+        """Fetch news items from CryptoPanic."""
         api_key = getattr(self.config, "CRYPTOPANIC_API_KEY", "") or ""
         if not api_key.strip():
             raise ValueError("CRYPTOPANIC_API_KEY is not configured")
@@ -103,18 +109,23 @@ class CryptoPanicNewsProvider(BaseProvider):
         return {"items": items}
 
     def static_fallback(self, context: dict) -> dict:
+        """Return static news when live fetch fails."""
         return _static_news_fallback()
 
 
 class RssNewsProvider(BaseProvider):
+    """News provider backed by an RSS feed."""
+
     section = "news"
     name = "rss"
 
     def __init__(self, config: Any | None = None, feed_url: str = DEFAULT_RSS_URL):
+        """Store provider config and feed URL."""
         self.config = config
         self.feed_url = feed_url
 
     def fetch(self, context: dict) -> dict:
+        """Fetch news items from the RSS feed."""
         timeout = float(getattr(self.config, "PROVIDER_HTTP_TIMEOUT", 5))
         response = _http_get(self.feed_url, timeout=timeout)
         if response.status_code != 200:
@@ -151,4 +162,5 @@ class RssNewsProvider(BaseProvider):
         return {"items": items}
 
     def static_fallback(self, context: dict) -> dict:
+        """Return static news when live fetch fails."""
         return _static_news_fallback()

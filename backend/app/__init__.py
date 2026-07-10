@@ -10,6 +10,7 @@ from app.utils.response import success_response
 
 
 def create_app(config_class=None):
+    """Build and configure the Flask app."""
     app = Flask(__name__)
 
     resolved_config = config_class or Config
@@ -26,6 +27,7 @@ def create_app(config_class=None):
 
     @app.get("/api/health")
     def health_check():
+        """Return a simple health status."""
         return success_response({"status": "healthy"})
 
     return app

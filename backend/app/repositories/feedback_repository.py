@@ -5,10 +5,11 @@ VALID_VOTE_TYPES = {"up", "down"}
 
 
 class InvalidVoteError(Exception):
-    pass
+    """Raised when a feedback vote has an invalid type."""
 
 
 def _validate_vote(item_type: str, vote_type: str) -> None:
+    """Check that item_type and vote_type are allowed."""
     if item_type not in VALID_ITEM_TYPES:
         raise InvalidVoteError(f"Invalid item_type: {item_type}")
     if vote_type not in VALID_VOTE_TYPES:
@@ -16,6 +17,7 @@ def _validate_vote(item_type: str, vote_type: str) -> None:
 
 
 def _row_to_dict(row: sqlite3.Row) -> dict:
+    """Convert a feedback vote row to a dict."""
     return {
         "id": row["id"],
         "user_id": row["user_id"],
@@ -34,6 +36,7 @@ def save_vote(
     item_type: str,
     vote_type: str,
 ) -> dict:
+    """Insert or update a feedback vote for the user."""
     _validate_vote(item_type, vote_type)
 
     conn.execute(
@@ -61,6 +64,7 @@ def save_vote(
 
 
 def get_votes_for_user(conn: sqlite3.Connection, user_id: int) -> list[dict]:
+    """Return all feedback votes for one user."""
     rows = conn.execute(
         """
         SELECT id, user_id, item_id, item_type, vote_type, created_at, updated_at

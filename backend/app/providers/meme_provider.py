@@ -13,6 +13,7 @@ IMAGE_EXTENSIONS = (".jpg", ".jpeg", ".png", ".gif", ".webp")
 
 
 def _static_meme() -> dict:
+    """Return a safe static meme payload."""
     return {
         "title": "HODL on — meme feed temporarily unavailable",
         "image_url": "https://via.placeholder.com/600x400.png?text=Crypto+Meme",
@@ -27,6 +28,7 @@ def _static_meme() -> dict:
 
 
 def _is_image_post(post: dict) -> bool:
+    """Return True if the Reddit post looks like an image."""
     url = (post.get("url") or "").lower().split("?")[0]
     if url.endswith(IMAGE_EXTENSIONS):
         return True
@@ -38,6 +40,7 @@ def _is_image_post(post: dict) -> bool:
 
 
 def _candidate_from_post(post: dict) -> dict | None:
+    """Map a Reddit post to a meme candidate, or None."""
     if not _is_image_post(post):
         return None
     title = (post.get("title") or "").strip()
@@ -58,6 +61,7 @@ def _candidate_from_post(post: dict) -> dict | None:
 
 
 def discover_reddit_memes(config: Any) -> list[dict]:
+    """Fetch image meme candidates from configured subreddits."""
     timeout = float(getattr(config, "PROVIDER_HTTP_TIMEOUT", 5))
     user_agent = getattr(config, "REDDIT_USER_AGENT", "AICryptoAdvisor/0.1")
     raw_subs = getattr(config, "REDDIT_MEME_SUBREDDITS", "cryptocurrencymemes")
@@ -109,6 +113,7 @@ def discover_reddit_memes(config: Any) -> list[dict]:
 
 
 def _pick_top_upvoted(candidates: list[dict], reason: str, selected_by: str) -> dict:
+    """Pick the candidate with the most upvotes."""
     top = max(candidates, key=lambda m: m["upvotes"])
     return {
         **top,
@@ -118,6 +123,7 @@ def _pick_top_upvoted(candidates: list[dict], reason: str, selected_by: str) -> 
 
 
 def _parse_gemini_choice(text: str, candidate_count: int) -> tuple[int, str]:
+    """Parse Gemini's JSON meme choice from free text."""
     # Prefer fenced or raw JSON object.
     match = re.search(r"\{.*\}", text, flags=re.DOTALL)
     if not match:
@@ -131,6 +137,7 @@ def _parse_gemini_choice(text: str, candidate_count: int) -> tuple[int, str]:
 
 
 def select_meme_with_gemini(candidates: list[dict], context: dict, config: Any) -> dict:
+    """Ask Gemini to pick one meme from the candidates."""
     prefs = {
         "interested_assets": context.get("interested_assets") or [],
         "investor_type": context.get("investor_type"),
@@ -159,13 +166,17 @@ def select_meme_with_gemini(candidates: list[dict], context: dict, config: Any) 
 
 
 class RedditGeminiMemeProvider(BaseProvider):
+    """Meme provider using Reddit discovery and Gemini selection."""
+
     section = "meme"
     name = "reddit_gemini"
 
     def __init__(self, config: Any | None = None):
+        """Store provider config."""
         self.config = config
 
     def fetch(self, context: dict) -> dict:
+        """Discover Reddit memes and pick one with Gemini."""
         candidates = discover_reddit_memes(self.config)
         try:
             return select_meme_with_gemini(candidates, context, self.config)
@@ -177,4 +188,5 @@ class RedditGeminiMemeProvider(BaseProvider):
             )
 
     def static_fallback(self, context: dict) -> dict:
+        """Return a static meme when live fetch fails."""
         return _static_meme()

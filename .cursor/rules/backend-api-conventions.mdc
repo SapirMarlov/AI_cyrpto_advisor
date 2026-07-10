@@ -54,6 +54,29 @@ alwaysApply: false
   - Success: `{ "ok": true, "data": {...}, "error": null }`
   - Error: `{ "ok": false, "data": null, "error": { "code": "string", "message": "string" } }`
 
+## Method Descriptions (Docstrings)
+- Add a short docstring to every function and method in `backend/app/` (and `backend/run.py`).
+- Use simple English. One line is enough. Do not over-explain.
+- Prefer the one-line form:
+
+```python
+def create_user(conn, email, password_hash):
+    """Create a user and return the new row."""
+```
+
+- For classes, add a short class docstring too:
+
+```python
+class LoginRateLimiter:
+    """Limit failed login attempts by IP and email."""
+```
+
+- Document private helpers (`_foo`) the same way — still keep them short.
+- Skip empty `__init__.py` files with no functions.
+- Do not add docstrings to test functions; test names already describe intent.
+- Do not use multi-paragraph Args/Returns/Raises blocks unless the contract is unclear from the signature.
+- When editing existing code, keep or add docstrings in this format.
+
 ## Repository Hygiene
 - Do not create unnecessary files/folders or speculative layers.
 - Add files/methods only when required for clean architecture and design.
