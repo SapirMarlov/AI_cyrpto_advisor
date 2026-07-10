@@ -6,7 +6,7 @@ import requests
 
 from app.providers.base_provider import BaseProvider
 
-# Quiz option ids -> CoinGecko coin ids
+# Quiz option ids -> CoinGecko coin ids (/coins/list)
 ASSET_TO_COINGECKO = {
     "bitcoin": "bitcoin",
     "ethereum": "ethereum",
@@ -16,7 +16,9 @@ ASSET_TO_COINGECKO = {
     "dogecoin": "dogecoin",
 }
 
-COINGECKO_SIMPLE_PRICE_URL = "https://api.coingecko.com/api/v3/simple/price"
+PUBLIC_BASE_URL = "https://api.coingecko.com/api/v3"
+PRO_BASE_URL = "https://pro-api.coingecko.com/api/v3"
+DEFAULT_USER_AGENT = "AICryptoAdvisor/0.1 (educational; +https://localhost)"
 
 
 def _resolve_coin_ids(interested_assets: list[str] | None) -> list[str]:
@@ -42,6 +44,9 @@ def _map_response(raw: dict, interested_assets: list[str] | None) -> dict:
         prices[asset] = {
             "usd": entry.get("usd"),
             "change_24h": entry.get("usd_24h_change"),
+            "market_cap": entry.get("usd_market_cap"),
+            "volume_24h": entry.get("usd_24h_vol"),
+            "last_updated_at": entry.get("last_updated_at"),
             "coingecko_id": gecko_id,
         }
     if not prices:
@@ -49,11 +54,42 @@ def _map_response(raw: dict, interested_assets: list[str] | None) -> dict:
     return {"prices": prices}
 
 
-def _http_get(url: str, params: dict, timeout: float) -> requests.Response:
+def _request_settings(config: Any | None) -> tuple[str, dict[str, str]]:
+    """
+    Resolve base URL + auth headers.
+    - Pro key  -> pro-api.coingecko.com + x-cg-pro-api-key
+    - Demo key -> api.coingecko.com + x-cg-demo-api-key
+    - Else     -> keyless public API
+    """
+    pro_key = (getattr(config, "COINGECKO_PRO_API_KEY", "") or "").strip()
+    demo_key = (getattr(config, "COINGECKO_DEMO_API_KEY", "") or "").strip()
+    user_agent = (
+        getattr(config, "COINGECKO_USER_AGENT", None)
+        or getattr(config, "REDDIT_USER_AGENT", None)
+        or DEFAULT_USER_AGENT
+    )
+    headers = {"Accept": "application/json", "User-Agent": str(user_agent)}
+
+    if pro_key:
+        headers["x-cg-pro-api-key"] = pro_key
+        return f"{PRO_BASE_URL}/simple/price", headers
+    if demo_key:
+        headers["x-cg-demo-api-key"] = demo_key
+        return f"{PUBLIC_BASE_URL}/simple/price", headers
+    return f"{PUBLIC_BASE_URL}/simple/price", headers
+
+
+def _http_get(
+    url: str,
+    *,
+    params: dict,
+    headers: dict[str, str],
+    timeout: float,
+) -> requests.Response:
     last_error: Exception | None = None
     for _ in range(2):  # initial try + 1 retry
         try:
-            return requests.get(url, params=params, timeout=timeout)
+            return requests.get(url, params=params, headers=headers, timeout=timeout)
         except requests.RequestException as exc:
             last_error = exc
     raise last_error  # type: ignore[misc]
@@ -70,15 +106,23 @@ class CoinGeckoPriceProvider(BaseProvider):
         timeout = float(getattr(self.config, "PROVIDER_HTTP_TIMEOUT", 5))
         interested = context.get("interested_assets")
         coin_ids = _resolve_coin_ids(interested)
+        url, headers = _request_settings(self.config)
+
         response = _http_get(
-            COINGECKO_SIMPLE_PRICE_URL,
+            url,
             params={
                 "ids": ",".join(coin_ids),
                 "vs_currencies": "usd",
+                "include_market_cap": "true",
+                "include_24hr_vol": "true",
                 "include_24hr_change": "true",
+                "include_last_updated_at": "true",
             },
+            headers=headers,
             timeout=timeout,
         )
+        if response.status_code == 429:
+            raise ValueError("coingecko rate limited (HTTP 429)")
         if response.status_code != 200:
             raise ValueError(f"coingecko returned HTTP {response.status_code}")
         try:
@@ -92,7 +136,14 @@ class CoinGeckoPriceProvider(BaseProvider):
     def static_fallback(self, context: dict) -> dict:
         interested = context.get("interested_assets") or ["bitcoin", "ethereum"]
         prices = {
-            asset: {"usd": None, "change_24h": None, "coingecko_id": ASSET_TO_COINGECKO.get(asset, asset)}
+            asset: {
+                "usd": None,
+                "change_24h": None,
+                "market_cap": None,
+                "volume_24h": None,
+                "last_updated_at": None,
+                "coingecko_id": ASSET_TO_COINGECKO.get(asset, asset),
+            }
             for asset in interested
         }
         return {"prices": prices, "fallback": True}

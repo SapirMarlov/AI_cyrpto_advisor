@@ -35,6 +35,12 @@ class Config:
     CRYPTOPANIC_API_KEY = os.getenv("CRYPTOPANIC_API_KEY", "")
     GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
     GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
+    COINGECKO_DEMO_API_KEY = os.getenv("COINGECKO_DEMO_API_KEY", "")
+    COINGECKO_PRO_API_KEY = os.getenv("COINGECKO_PRO_API_KEY", "")
+    COINGECKO_USER_AGENT = os.getenv(
+        "COINGECKO_USER_AGENT",
+        "AICryptoAdvisor/0.1 (educational; contact: local-dev)",
+    )
     REDDIT_MEME_SUBREDDITS = os.getenv(
         "REDDIT_MEME_SUBREDDITS",
         "cryptocurrencymemes,CryptoMemes,bitcoin",
