@@ -193,8 +193,14 @@
     @apply bg-background text-foreground;
     letter-spacing: var(--tracking-normal);
     }
+  html.dark body {
+    background-color: transparent;
+    }
   html {
     @apply font-sans;
+    }
+  html.dark {
+    background-color: var(--background);
     }
 }
 
