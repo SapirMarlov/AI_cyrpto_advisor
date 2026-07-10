@@ -4,6 +4,7 @@ import html
 import json
 import re
 import time
+from datetime import datetime, timezone
 from typing import Any
 from xml.etree import ElementTree as ET
 
@@ -122,10 +123,8 @@ def discover_reddit_memes(config: Any) -> list[dict]:
     candidates: list[dict] = []
     last_error: Exception | None = None
     for index, sub in enumerate(subreddits):
-        if len(candidates) >= target_count:
-            break
         if index > 0:
-            # Reddit rate-limits bursty anonymous RSS; space subreddit calls.
+            # Reddit rate-limits bursty anonymous RSS; space fallback sub calls.
             time.sleep(1.0)
         try:
             payload = _fetch_subreddit_rss(sub, headers, timeout)
@@ -141,6 +140,11 @@ def discover_reddit_memes(config: Any) -> list[dict]:
             candidate = _candidate_from_rss_entry(entry, sub, rank)
             if candidate:
                 candidates.append(candidate)
+
+        # One successful sub is enough for meme-of-the-day. Extra RSS calls
+        # burn Reddit's anonymous rate limit and force stale-cache fallbacks.
+        if candidates:
+            break
 
     if not candidates:
         if last_error:
@@ -215,10 +219,18 @@ class RedditGeminiMemeProvider(BaseProvider):
 
     section = "meme"
     name = "reddit_gemini"
+    # Meme of the day does not need 5-minute refreshes; longer TTL avoids Reddit 429s.
+    cache_ttl_seconds = 3600
 
     def __init__(self, config: Any | None = None):
         """Store provider config."""
         self.config = config
+
+    def cache_key(self, context: dict) -> str:
+        """Cache one meme selection per user per UTC day."""
+        user_id = context.get("user_id", "anon")
+        day = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        return f"{self.section}:{self.name}:{user_id}:{day}"
 
     def fetch(self, context: dict) -> dict:
         """Discover Reddit memes and pick one with Gemini."""

@@ -81,6 +81,24 @@ def test_run_provider_exception_uses_stale_cache(db_conn):
     assert result["data"] == stale_payload
 
 
+def test_run_provider_returns_fresh_cache_without_live_fetch(db_conn):
+    provider = FakeFailProvider()
+    context = {"user_id": 4}
+    key = provider.cache_key(context)
+    cache_repo.set_cached(
+        db_conn,
+        key,
+        {"coins": {"bitcoin": {"usd": 99.0}}},
+        ttl_seconds=60,
+    )
+
+    result = run_provider(provider, context, db_conn, TestConfig)
+
+    assert result["error"] is None
+    assert result["stale"] is False
+    assert result["data"]["coins"]["bitcoin"]["usd"] == 99.0
+
+
 def test_provider_cache_set_and_get_fresh(db_conn):
     cache_repo.set_cached(db_conn, "news:test:1", {"items": [1]}, ttl_seconds=60)
     cached = cache_repo.get_cached(db_conn, "news:test:1")

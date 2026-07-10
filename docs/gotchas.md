@@ -21,11 +21,12 @@ Short operational notes for the next iteration. Prefer fixing the root cause whe
 ## Providers
 
 - Every section uses live → cache → static fallback. Client-facing section errors are generic (`Provider temporarily unavailable`); details stay in server logs.
-- Timeouts default to `PROVIDER_HTTP_TIMEOUT` (5s). Cache TTL is `PROVIDER_CACHE_TTL` (300s).
+- Timeouts default to `PROVIDER_HTTP_TIMEOUT` (5s). Cache TTL is `PROVIDER_CACHE_TTL` (300s). Fresh (unexpired) cache is served before live provider calls so dashboard reloads do not burn rate limits; expired cache is only used as a stale fallback after a live failure.
+- Meme provider uses a 1-hour TTL and a per-user per-UTC-day cache key so "meme of the day" is not refetched on every page load.
 - Keys: `GEMINI_API_KEY` required for `AI_PROVIDER=gemini` and `MEME_PROVIDER=reddit_gemini`. `CRYPTOPANIC_API_KEY` only for `NEWS_PROVIDER=cryptopanic`. CoinGecko works keyless; demo/pro keys raise limits.
 - Prefer `GEMINI_MODEL=gemini-flash-lite-latest` (or another current free-tier alias). Older ids like `gemini-2.0-flash` can return HTTP 429 with `limit: 0` even when the key is valid — that is a model/quota mismatch, not a temporary rate limit. Insight then shows `generated_by: template_fallback`.
 - Offline / Playwright: set `PRICE_PROVIDER=static`, `NEWS_PROVIDER=static`, `AI_PROVIDER=template`, `MEME_PROVIDER=static`.
-- Reddit anonymous rate limits (HTTP 429) are common if too many subreddits are configured — keep `REDDIT_MEME_SUBREDDITS` short.
+- Reddit anonymous rate limits (HTTP 429) are common if too many subreddits are configured — prefer a single `REDDIT_MEME_SUBREDDITS` value; extras are fallback-only after an empty first sub.
 
 ## Frontend
 

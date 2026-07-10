@@ -92,7 +92,7 @@ Shared knobs:
 
 Provider-specific keys (`CRYPTOPANIC_API_KEY`, `GEMINI_API_KEY`, `GEMINI_MODEL`, CoinGecko keys, Reddit settings) stay in `.env` as documented in `.env.example`. Default model is `gemini-flash-lite-latest`; older ids like `gemini-2.0-flash` may return HTTP 429 with free-tier `limit: 0` and force insight `template_fallback`.
 
-**Reddit memes:** `reddit_gemini` discovers posts via keyless Atom RSS (`/r/{sub}/.rss`). Reddit’s unauthenticated `.json` endpoints return HTTP 403, so do not switch back to JSON without OAuth credentials. Keep `REDDIT_MEME_SUBREDDITS` short (meme-focused subs only) — extra calls hit anonymous HTTP 429 rate limits.
+**Reddit memes:** `reddit_gemini` discovers posts via keyless Atom RSS (`/r/{sub}/.rss`). Reddit’s unauthenticated `.json` endpoints return HTTP 403, so do not switch back to JSON without OAuth credentials. Default `REDDIT_MEME_SUBREDDITS` is a single sub (`cryptocurrencymemes`); extra comma-separated subs are tried only if earlier ones return no image candidates — extra calls hit anonymous HTTP 429 rate limits.
 
 ---
 

@@ -53,7 +53,7 @@ class Config:
     )
     REDDIT_MEME_SUBREDDITS = os.getenv(
         "REDDIT_MEME_SUBREDDITS",
-        "cryptocurrencymemes,CryptoMemes",
+        "cryptocurrencymemes",
     )
     REDDIT_USER_AGENT = os.getenv(
         "REDDIT_USER_AGENT",

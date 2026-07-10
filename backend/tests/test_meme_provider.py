@@ -93,7 +93,10 @@ def test_meme_skips_failed_subreddit_and_uses_others():
     fail.content = b""
     ok = _ok_rss_response()
 
-    provider = RedditGeminiMemeProvider(TestConfig)
+    class TwoSubConfig(TestConfig):
+        REDDIT_MEME_SUBREDDITS = "cryptocurrencymemes,CryptoMemes"
+
+    provider = RedditGeminiMemeProvider(TwoSubConfig)
     with patch(
         "app.providers.meme_provider.requests.get",
         side_effect=[fail, ok],
@@ -109,18 +112,17 @@ def test_meme_skips_failed_subreddit_and_uses_others():
     assert data["title"] == "When BTC dumps"
 
 
-def test_meme_stops_after_enough_candidates():
-    many = _rss_feed(
+def test_meme_stops_after_first_successful_subreddit():
+    few = _rss_feed(
         [
             (
-                f"Meme {i}",
-                f"https://www.reddit.com/r/cryptocurrencymemes/comments/{i}/",
-                f"https://i.redd.it/meme{i}.jpg",
+                "Meme 0",
+                "https://www.reddit.com/r/cryptocurrencymemes/comments/0/",
+                "https://i.redd.it/meme0.jpg",
             )
-            for i in range(15)
         ]
     )
-    get_mock = MagicMock(return_value=_ok_rss_response(many))
+    get_mock = MagicMock(return_value=_ok_rss_response(few))
 
     provider = RedditGeminiMemeProvider(TestConfig)
     with patch("app.providers.meme_provider.requests.get", get_mock):
@@ -131,7 +133,7 @@ def test_meme_stops_after_enough_candidates():
             ):
                 data = provider.fetch({})
 
-    # First sub already fills the target; do not call remaining subs (avoids 429).
+    # First sub with any images is enough; do not call remaining subs (avoids 429).
     assert get_mock.call_count == 1
     assert data["title"] == "Meme 0"
 

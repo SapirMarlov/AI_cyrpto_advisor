@@ -36,9 +36,17 @@ def run_provider(
     conn: Any,
     config: Any,
 ) -> dict:
-    """Run a provider with live, then cache, then static fallback."""
-    ttl = int(getattr(config, "PROVIDER_CACHE_TTL", 300))
+    """Run a provider with fresh cache, then live, then stale cache, then static."""
+    ttl = int(
+        getattr(provider, "cache_ttl_seconds", None)
+        or getattr(config, "PROVIDER_CACHE_TTL", 300)
+    )
     key = provider.cache_key(context)
+
+    # Serve unexpired cache first so dashboard reloads do not burn rate limits.
+    cached = cache_repo.get_cached(conn, key)
+    if cached is not None and not cached["expired"]:
+        return {"data": cached["payload"], "error": None, "stale": False}
 
     try:
         data = provider.fetch(context)
@@ -58,7 +66,6 @@ def run_provider(
             "message": "Provider temporarily unavailable",
         }
 
-        cached = cache_repo.get_cached(conn, key)
         if cached is not None:
             return {
                 "data": cached["payload"],
