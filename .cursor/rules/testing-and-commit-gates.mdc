@@ -26,8 +26,9 @@ alwaysApply: false
   - flaky test behavior and stabilizing notes
 
 ## Commit Workflow
-- Follow `.cursor/rules/git-workflow.mdc` for branching, commit size, and message format.
+- Follow `.cursor/rules/git-workflow.mdc` for phase/TODO branching, commit size, and message format.
 - One logical change per commit; split large work instead of one big commit.
 - Ask user permission before committing unless they explicitly requested it.
 - Subject line max 72 characters; add a short body when the why is not obvious.
-- Keep commits aligned to one roadmap slice when possible (avoid mixing unrelated phases).
+- Keep each TODO branch aligned to one roadmap slice; merge into the phase branch only after tests pass.
+- Do not merge a phase branch into `master` without explicit user approval.

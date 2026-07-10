@@ -33,7 +33,7 @@ alwaysApply: true
   - Add at least one explicit acceptance test per slice.
 
 ## Workflow Rules
-- Follow `.cursor/rules/git-workflow.mdc`: short-lived branches, one logical change per commit, body when needed.
+- Follow `.cursor/rules/git-workflow.mdc`: phase branch per phase, TODO branch per slice, auto-merge TODO→phase after tests, ask before phase→master.
 - After every big change, ask the user for permission before committing.
 - Save gotcha moments (important pitfalls, edge cases, or integration caveats) in project notes.
 - For backend tasks, create and activate `.venv` before install/run/test commands.

@@ -1,26 +1,79 @@
 ---
-description: Branching and commit workflow — small logical commits, clear messages
+description: Phase/TODO branching, merge gates, and commit message standards
 alwaysApply: true
 ---
 
 # Git Workflow
 
-## Branching
+## Branch Hierarchy
 
-- `main` is the stable integration branch. Keep it deployable.
-- Create short-lived branches from `main` for all work:
-  - `feat/<short-name>` — new behavior or UI
-  - `fix/<short-name>` — bug fixes
-  - `test/<short-name>` — test-only changes
-  - `chore/<short-name>` — tooling, deps, config, docs
-- One branch should cover one roadmap slice or one tightly related set of slices.
-- Re-sync with `main` before opening a PR if the branch is behind.
-- Prefer one PR per logical feature or slice. Do not bundle unrelated phases.
+```
+master                ← stable; only merge with user approval
+  └── phase/*         ← one branch per roadmap phase
+        └── <slice-id>-*  ← one branch per TODO / roadmap slice
+```
+
+- `master` is the stable integration branch. Keep it deployable.
+- Never merge a phase branch into `master` without asking the user first.
+- Never commit directly on `master` or on a phase branch while a TODO is in progress.
+
+## Branch Naming Rules
+
+Use lowercase kebab-case only. No spaces, underscores, or camelCase.
+
+| Kind | Pattern | Example |
+|------|---------|---------|
+| Phase | `phase/<n>-<short-slug>` | `phase/2-auth` |
+| TODO / slice | `<slice-id>-<short-slug>` | `p2-s1-auth-service` |
+| Hotfix (off master) | `fix/<short-slug>` | `fix/session-cookie-secure` |
+| Chore (off master) | `chore/<short-slug>` | `chore/update-deps` |
+
+Naming constraints:
+- `<n>` is the roadmap phase number (`0`, `1`, `2`, …).
+- TODO branches **must** start with `<slice-id>` as the prefix (roadmap id in lowercase: `p0-s1`, `p2-s3`).
+- `<short-slug>` is 1–4 words describing the work (nouns preferred).
+- Keep the full branch name under 50 characters when practical.
+- Do not use `todo/`, `feat/`, `feature/`, or personal names in branch names.
+
+Examples:
+- Phase 1 Data Layer → `phase/1-data-layer`
+- Slice P1-S2 Users repository → `p1-s2-users-repository`
+- Phase 3 Onboarding → `phase/3-onboarding`
+- Slice P3-S1 Quiz API → `p3-s1-quiz-api`
+
+## Phase / TODO Workflow
+
+### 1. Start a phase
+Before any work in a new roadmap phase:
+1. Ensure `master` is clean and up to date.
+2. Create and check out `phase/<n>-<short-slug>` from `master`.
+3. Do all phase work through TODO branches only.
+
+### 2. Start a TODO
+For every new TODO / roadmap slice:
+1. Create and check out `<slice-id>-<short-slug>` from the current phase branch.
+2. Implement only that TODO on this branch.
+3. Commit with user permission (see Agent Commit Behavior).
+
+### 3. Finish a TODO (auto-merge into phase)
+When the TODO is done:
+1. Run the affected tests.
+2. If tests pass, merge the TODO branch into the phase branch (fast-forward preferred).
+3. Delete the local TODO branch after a successful merge.
+4. If tests fail, keep the TODO branch open and fix before merging.
+
+Do **not** ask the user to merge TODO → phase. That merge is automatic after green tests.
+
+### 4. Finish a phase (ask user)
+When all TODOs for the phase are merged into the phase branch:
+1. Confirm the phase branch is green (run the relevant test suite).
+2. **Ask the user** for permission to merge the phase branch into `master`.
+3. Only merge after explicit approval. Then delete the local phase branch if the user wants.
 
 ## Commit Size and Scope
 
 - **One logical change per commit.** If a task touches multiple concerns, split into multiple commits.
-- Do not mix unrelated files (e.g., auth + meme provider + unrelated styling) in one commit.
+- Do not mix unrelated files in one commit.
 - Typical split order when a slice spans layers:
   1. schema / migration
   2. repository or service logic
@@ -66,3 +119,5 @@ dashboard still renders partial market data.
 - If changes are large or span multiple logical units, propose a commit plan and split before committing.
 - Never commit secrets, `.env`, or credential files.
 - After committing, verify with `git status` and `git log -1`.
+- After a TODO passes tests, merge it into the phase branch without waiting for extra approval.
+- After a phase is complete, stop and ask the user before merging into `master`.
