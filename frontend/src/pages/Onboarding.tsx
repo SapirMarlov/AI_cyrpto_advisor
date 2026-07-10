@@ -149,13 +149,15 @@ export function OnboardingPage() {
         {!loading && !loadError && questions.length > 0 ? (
           <form onSubmit={onSubmit}>
             <CardContent className="space-y-8">
-              {questions.map((question) => (
+              {questions.map((question) => {
+                const current = answers[question.id];
+                return (
                 <fieldset key={question.id} className="space-y-3">
                   <legend className="text-sm font-medium">{question.prompt}</legend>
 
                   {question.type === "single" ? (
                     <RadioGroup
-                      value={typeof answers[question.id] === "string" ? answers[question.id] : ""}
+                      value={typeof current === "string" ? current : ""}
                       onValueChange={(value) => setSingleAnswer(question.id, value)}
                       disabled={pending}
                     >
@@ -172,9 +174,7 @@ export function OnboardingPage() {
                   ) : (
                     <div className="space-y-2">
                       {question.options.map((option) => {
-                        const selected = Array.isArray(answers[question.id])
-                          ? answers[question.id]
-                          : [];
+                        const selected = Array.isArray(current) ? current : [];
                         const checked = selected.includes(option.id);
                         return (
                           <div key={option.id} className="flex items-center gap-2">
@@ -195,7 +195,8 @@ export function OnboardingPage() {
                     </div>
                   )}
                 </fieldset>
-              ))}
+                );
+              })}
 
               {fieldError ? (
                 <p className="text-destructive text-sm" role="alert">
