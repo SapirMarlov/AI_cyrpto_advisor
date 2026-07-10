@@ -2,6 +2,9 @@ import re
 
 EMAIL_PATTERN = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 MIN_PASSWORD_LENGTH = 8
+VALID_FEEDBACK_ITEM_TYPES = {"news", "insight", "meme"}
+VALID_FEEDBACK_VOTE_TYPES = {"up", "down"}
+ALLOWED_FEEDBACK_VOTE_FIELDS = {"item_id", "item_type", "vote_type"}
 
 
 class ValidationError(Exception):
@@ -100,3 +103,32 @@ def validate_onboarding_answers(payload: dict | None, questions: list[dict]) -> 
         raise ValidationError(f"Unsupported question type for '{question_id}'")
 
     return validated
+
+
+def validate_feedback_vote(payload: dict | None) -> dict:
+    """Validate feedback vote JSON and return cleaned fields."""
+    if payload is None or not isinstance(payload, dict):
+        raise ValidationError("Request body must be a JSON object")
+
+    unexpected = set(payload.keys()) - ALLOWED_FEEDBACK_VOTE_FIELDS
+    if unexpected:
+        raise ValidationError(f"Unexpected fields: {', '.join(sorted(unexpected))}")
+
+    item_id = payload.get("item_id")
+    item_type = payload.get("item_type")
+    vote_type = payload.get("vote_type")
+
+    if not isinstance(item_id, str) or not item_id.strip():
+        raise ValidationError("item_id must be a non-empty string")
+
+    if item_type not in VALID_FEEDBACK_ITEM_TYPES:
+        raise ValidationError("item_type must be one of: news, insight, meme")
+
+    if vote_type not in VALID_FEEDBACK_VOTE_TYPES:
+        raise ValidationError("vote_type must be one of: up, down")
+
+    return {
+        "item_id": item_id.strip(),
+        "item_type": item_type,
+        "vote_type": vote_type,
+    }
