@@ -13,6 +13,7 @@ AI Crypto advisor/
 ├── README.md                 # Overview + quick start
 ├── docs/
 │   ├── developer-guide.md    # This file
+│   ├── providers.md          # Add / swap provider implementations
 │   ├── testing-guide.md      # Run/write tests and gates
 │   ├── mvp-architecture.md
 │   └── roadmap.md
@@ -27,7 +28,7 @@ AI Crypto advisor/
 │   │   ├── repositories/
 │   │   ├── routes/
 │   │   ├── services/
-│   │   ├── providers/        # Phase 4+ (planned)
+│   │   ├── providers/        # Swappable news/prices/insight/meme adapters
 │   │   └── utils/            # response envelope, validation, auth_guard
 │   ├── instance/             # SQLite DB file (local)
 │   └── tests/
@@ -42,6 +43,8 @@ AI Crypto advisor/
 ├── .venv/                    # Project-local Python venv (gitignored)
 └── .cursor/rules/            # Agent conventions
 ```
+
+Providers how-to (add / swap implementations): **[providers.md](./providers.md)**.
 
 ---
 
@@ -82,8 +85,15 @@ Secrets live in `backend/.env` (gitignored). Prefer documenting new keys in `bac
 | `SECRET_KEY` | backend | Dev default in config; **set a strong value** outside local play |
 | `DATABASE_PATH` | backend | `backend/instance/app.db` |
 | `TEST_DATABASE_PATH` | backend tests | In-memory SQLite URI when unset |
-| `GEMINI_API_KEY` | backend | Used in Phase 4+ AI/meme providers |
-| `CRYPTOPANIC_API_KEY` | backend | Planned for news provider (Phase 4) |
+| `PRICE_PROVIDER` | backend | `coingecko` — see [providers.md](./providers.md) |
+| `NEWS_PROVIDER` | backend | `cryptopanic` (or `rss`) |
+| `AI_PROVIDER` | backend | `gemini` (or `template`) |
+| `MEME_PROVIDER` | backend | `reddit_gemini` |
+| `PROVIDER_HTTP_TIMEOUT` | backend | `5` seconds |
+| `PROVIDER_CACHE_TTL` | backend | `300` seconds |
+| `GEMINI_API_KEY` | backend | Required for `AI_PROVIDER=gemini` and meme selection |
+| `CRYPTOPANIC_API_KEY` | backend | Required for `NEWS_PROVIDER=cryptopanic` |
+| `COINGECKO_DEMO_API_KEY` / `COINGECKO_PRO_API_KEY` | backend | Optional; public API works without keys |
 | `VITE_API_BASE_URL` | frontend | `http://localhost:5000` |
 
 Session policy (code defaults in `backend/app/config.py`):
@@ -139,7 +149,7 @@ Dependency order for new work:
 | `routes/` | HTTP only: validate payload, call service, return envelope |
 | `services/` | Business rules (auth, onboarding, dashboard aggregation, feedback) |
 | `repositories/` | SQLite access; always scope by `user_id` from session for protected writes |
-| `providers/` | External APIs behind swappable interfaces (Phase 4+) |
+| `providers/` | External APIs behind swappable interfaces — [providers.md](./providers.md) |
 | `utils/` | Shared envelope, validation, `login_required` |
 
 ### Response envelope (all APIs)
@@ -265,7 +275,7 @@ Project rules under `.cursor/rules/`:
 | `testing-and-commit-gates.mdc` | Test gates and gotchas |
 | `docs-maintenance.mdc` | Keep README + this guide updated |
 
-Skills under `.cursor/skills/` (e.g. `crypto-mvp-execution`, `commit-helper`) encode recurring workflows.
+Skills under `.cursor/skills/` (e.g. `crypto-mvp-execution`, `commit-helper`, `dashboard-providers`) encode recurring workflows.
 
 ---
 

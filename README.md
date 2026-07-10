@@ -65,6 +65,7 @@ Full details: [docs/testing-guide.md](docs/testing-guide.md).
 | Doc | Purpose |
 | --- | --- |
 | [docs/developer-guide.md](docs/developer-guide.md) | Setup, layout, API, env, git workflow |
+| [docs/providers.md](docs/providers.md) | Add or swap dashboard providers (registry + env) |
 | [docs/testing-guide.md](docs/testing-guide.md) | How to run/write tests, fixtures, gates |
 | [docs/mvp-architecture.md](docs/mvp-architecture.md) | Architecture and security baseline |
 | [docs/roadmap.md](docs/roadmap.md) | Phased implementation plan (P0–P7) |
