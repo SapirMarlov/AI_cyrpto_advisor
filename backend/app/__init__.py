@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_cors import CORS
+from werkzeug.exceptions import HTTPException
 
 from app.config import Config, TestConfig
 from app.db import init_db
@@ -8,7 +9,7 @@ from app.routes.auth_routes import auth_bp, init_auth_routes
 from app.routes.dashboard_routes import dashboard_bp
 from app.routes.feedback_routes import feedback_bp
 from app.routes.onboarding_routes import onboarding_bp
-from app.utils.response import success_response
+from app.utils.response import error_response, success_response
 
 
 def create_app(config_class=None):
@@ -37,5 +38,29 @@ def create_app(config_class=None):
     def health_check():
         """Return a simple health status."""
         return success_response({"status": "healthy"})
+
+    @app.errorhandler(404)
+    def not_found(_exc):
+        """Return a safe envelope for unknown routes."""
+        return error_response("not_found", "Resource not found", 404)
+
+    @app.errorhandler(Exception)
+    def handle_unexpected_error(exc):
+        """Return a safe envelope for unhandled errors (no stack traces)."""
+        if isinstance(exc, HTTPException):
+            status = exc.code or 500
+            if status == 404:
+                return error_response("not_found", "Resource not found", 404)
+            return error_response(
+                "http_error",
+                exc.description or "Request failed",
+                status,
+            )
+        app.logger.exception("Unhandled exception")
+        return error_response(
+            "internal_error",
+            "An unexpected error occurred",
+            500,
+        )
 
     return app

@@ -45,3 +45,34 @@ def test_login_required_rejects_expired_session(client, app):
 
     assert response.status_code == 401
     assert payload["error"]["code"] == "unauthorized"
+
+
+def test_login_required_rejects_absolute_expired_session(client, app):
+    signup_response = client.post(
+        "/api/auth/signup",
+        json={"email": "absolute@example.com", "password": "password123"},
+    )
+    cookie_header = signup_response.headers.get("Set-Cookie")
+    token = cookie_header.split("session_id=")[1].split(";")[0]
+
+    with app.app_context():
+        from app.db.connection import get_db
+
+        db = get_db()
+        db.execute(
+            """
+            UPDATE sessions
+            SET created_at = '2000-01-01 00:00:00',
+                last_active_at = datetime('now')
+            WHERE id = ?
+            """,
+            (token,),
+        )
+        db.commit()
+
+    client.set_cookie("session_id", token)
+    response = client.get("/api/auth/me")
+    payload = response.get_json()
+
+    assert response.status_code == 401
+    assert payload["error"]["code"] == "unauthorized"

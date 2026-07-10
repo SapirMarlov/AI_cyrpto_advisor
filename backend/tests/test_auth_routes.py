@@ -117,6 +117,36 @@ def test_signup_rejects_unexpected_fields(client):
     assert "Unexpected fields" in payload["error"]["message"]
 
 
+def test_login_rejects_unexpected_fields(client):
+    response = client.post(
+        "/api/auth/login",
+        json={
+            "email": "user@example.com",
+            "password": "password123",
+            "role": "admin",
+        },
+    )
+    payload = response.get_json()
+
+    assert response.status_code == 400
+    assert payload["error"]["code"] == "validation_error"
+    assert "Unexpected fields" in payload["error"]["message"]
+
+
+def test_session_cookie_has_security_attributes(client):
+    response = client.post(
+        "/api/auth/signup",
+        json={"email": "cookie@example.com", "password": "password123"},
+    )
+    set_cookie = response.headers.get("Set-Cookie", "")
+
+    assert response.status_code == 201
+    assert "HttpOnly" in set_cookie
+    assert "SameSite=Lax" in set_cookie
+    # TestConfig forces Secure=False for local HTTP clients.
+    assert "Secure" not in set_cookie
+
+
 def test_login_rate_limited_after_repeated_failures(client):
     client.post(
         "/api/auth/signup",

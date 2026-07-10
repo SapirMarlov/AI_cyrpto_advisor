@@ -51,8 +51,10 @@ def test_run_provider_exception_uses_static_fallback(db_conn):
 
     assert result["stale"] is False
     assert result["error"]["code"] == "provider_error"
-    assert "timeout" in result["error"]["message"]
+    assert result["error"]["message"] == "Provider temporarily unavailable"
+    assert "timeout" not in result["error"]["message"]
     assert result["data"]["fallback"] is True
+
 
 
 def test_run_provider_exception_uses_stale_cache(db_conn):

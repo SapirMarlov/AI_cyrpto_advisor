@@ -53,7 +53,10 @@ def run_provider(
             provider.name,
             exc,
         )
-        error = {"code": "provider_error", "message": str(exc) or "provider failed"}
+        error = {
+            "code": "provider_error",
+            "message": "Provider temporarily unavailable",
+        }
 
         cached = cache_repo.get_cached(conn, key)
         if cached is not None:
