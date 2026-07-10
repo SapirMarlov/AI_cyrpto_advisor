@@ -25,7 +25,7 @@ export function NewsPanel({ section, loading = false }: NewsPanelProps) {
           {section?.stale ? "Showing stale cached headlines." : "Latest headlines for your interests."}
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="max-h-80 space-y-4 overflow-y-auto">
         {loading ? <p className="text-muted-foreground text-sm">Loading news…</p> : null}
         {!loading && section?.error ? (
           <p className="text-destructive text-sm" role="alert">
