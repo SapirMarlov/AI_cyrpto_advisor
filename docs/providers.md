@@ -91,6 +91,8 @@ Shared knobs:
 
 Provider-specific keys (`CRYPTOPANIC_API_KEY`, `GEMINI_API_KEY`, CoinGecko keys, Reddit settings) stay in `.env` as documented in `.env.example`.
 
+**Reddit memes:** `reddit_gemini` discovers posts via keyless Atom RSS (`/r/{sub}/.rss`). Reddit’s unauthenticated `.json` endpoints return HTTP 403, so do not switch back to JSON without OAuth credentials. Keep `REDDIT_MEME_SUBREDDITS` short (meme-focused subs only) — extra calls hit anonymous HTTP 429 rate limits.
+
 ---
 
 ## 3. How to add a new provider

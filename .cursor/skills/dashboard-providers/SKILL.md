@@ -35,7 +35,7 @@ Do not invent a new selector env var unless adding a **new section**. Reuse the 
 | `prices` | `PRICE_PROVIDER` | `coingecko` |
 | `news` | `NEWS_PROVIDER` | `cryptopanic`, `rss` |
 | `insight` | `AI_PROVIDER` | `gemini`, `template` |
-| `meme` | `MEME_PROVIDER` | `reddit_gemini` |
+| `meme` | `MEME_PROVIDER` | `reddit_gemini` (Reddit Atom RSS + Gemini) |
 
 Unknown env values fall back to section defaults in `registry.py` (`_DEFAULTS`).
 
