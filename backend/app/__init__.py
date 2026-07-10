@@ -1,6 +1,7 @@
 from flask import Flask
 
 from app.config import Config, TestConfig
+from app.db import init_db
 from app.utils.response import success_response
 
 
@@ -12,6 +13,7 @@ def create_app(config_class=None):
         resolved_config = TestConfig
 
     app.config.from_object(resolved_config)
+    init_db(app)
 
     @app.get("/api/health")
     def health_check():
