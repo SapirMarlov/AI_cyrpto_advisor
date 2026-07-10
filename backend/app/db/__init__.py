@@ -7,7 +7,7 @@ from app.db.migrate import apply_schema
 def init_db(app) -> None:
     database_path = app.config["DATABASE_PATH"]
 
-    if database_path != ":memory:":
+    if database_path != ":memory:" and not database_path.startswith("file:"):
         Path(database_path).parent.mkdir(parents=True, exist_ok=True)
 
     conn = get_connection(database_path)

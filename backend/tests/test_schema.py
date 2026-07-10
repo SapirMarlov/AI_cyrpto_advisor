@@ -6,7 +6,13 @@ from app.db.connection import get_connection
 from app.db.migrate import apply_schema
 
 
-EXPECTED_TABLES = {"users", "user_preferences", "feedback_votes", "provider_cache"}
+EXPECTED_TABLES = {
+    "users",
+    "user_preferences",
+    "feedback_votes",
+    "provider_cache",
+    "sessions",
+}
 
 
 def _get_table_names(conn):
