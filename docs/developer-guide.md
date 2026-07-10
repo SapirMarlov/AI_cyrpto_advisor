@@ -15,6 +15,7 @@ AI Crypto advisor/
 │   ├── developer-guide.md    # This file
 │   ├── providers.md          # Add / swap provider implementations
 │   ├── testing-guide.md      # Run/write tests and gates
+│   ├── gotchas.md            # Ops pitfalls and MVP runbook
 │   ├── mvp-architecture.md
 │   └── roadmap.md
 ├── backend/
@@ -44,6 +45,7 @@ AI Crypto advisor/
 │       ├── components/       # ui (shadcn), dashboard panels, ThemeToggle
 │       ├── services/apiClient.ts
 │       └── theme/            # Cosmic Night light/dark preference
+├── e2e/                      # Playwright critical-path browser tests
 ├── .venv/                    # Project-local Python venv (gitignored)
 └── .cursor/rules/            # Agent conventions
 ```
@@ -206,13 +208,7 @@ Helpers: `backend/app/utils/response.py`. Frontend types: `frontend/src/services
 | `GET` | `/api/dashboard/daily` | Session | Per-section news/prices/insight/meme (partial success) |
 | `POST` | `/api/feedback/vote` | Session | Body: `{ item_id, item_type, vote_type }`; upsert replace |
 
-### Planned (roadmap)
-
-| Method | Path | Phase |
-| --- | --- | --- |
-| — | Hardening, browser e2e, gotchas | 7 |
-
-Dashboard returns **per-section** payloads (`news`, `prices`, `insight`, `meme`) so one provider failure does not fail the whole response. Feedback votes use replace-on-repeat for the same `(user, item_type, item_id)`. Client derives vote `item_id` from news `url`, meme `permalink`/`image_url`, and `insight-{YYYY-MM-DD}`.
+Dashboard returns **per-section** payloads (`news`, `prices`, `insight`, `meme`) so one provider failure does not fail the whole response. Feedback votes use replace-on-repeat for the same `(user, item_type, item_id)`. Client derives vote `item_id` from news `url`, meme `permalink`/`image_url`, and `insight-{YYYY-MM-DD}`. Unhandled server errors return a safe `internal_error` envelope (no stack traces).
 
 ---
 
@@ -240,9 +236,13 @@ Quick run:
 
 ```powershell
 .\.venv\Scripts\Activate.ps1
+$env:PYTHONPATH = "backend"
 pytest backend\tests
 
 cd frontend
+npm test
+
+cd ..\e2e
 npm test
 ```
 
@@ -305,18 +305,19 @@ Update this table when a phase lands on `master` or a phase branch is the active
 | 3 | Onboarding | Done |
 | 4 | Providers + dashboard API | Done |
 | 5 | Feedback voting API | Done |
-| 6 | Frontend screens | Done on `phase/6-frontend` (ask before merge to `master`) |
-| 7 | Hardening + delivery | Not started — Next |
+| 6 | Frontend screens | Done on `phase/7-hardening` (with Phase 7; ask before merge to `master`) |
+| 7 | Hardening + delivery | Done on `phase/7-hardening` — ask before merge to `master` |
 
 ---
 
 ## 11. Common pitfalls
 
+See **[gotchas.md](./gotchas.md)** for the full runbook. Highlights:
+
 - **Wrong Python env:** always activate `.venv` before `pip` / `pytest` / `run.py`.
 - **Running Flask from wrong cwd:** `DATABASE_PATH` default is relative (`backend/instance/app.db`); prefer running from repo root as documented.
 - **Session cookies in browser:** frontend must use `credentials: "include"`; cookie is not in `localStorage`.
 - **CORS in local dev:** Vite origin must be listed in `CORS_ORIGINS`; Flask uses `supports_credentials=True`.
-- **Provider failures:** never let third-party exceptions bubble to the route; use section-level fallbacks (Phase 4).
+- **Provider failures:** never let third-party exceptions bubble to the route; use section-level fallbacks.
 - **Secrets:** `.env` is gitignored; rotate any key that was ever committed or pasted into chat logs.
-
-When you hit a non-obvious pitfall, add a short note to `docs/gotchas.md` (create in Phase 7 or earlier if useful).
+- **e2e ports:** Playwright serves the UI on `5174` so it does not clash with a normal Vite `5173` session.

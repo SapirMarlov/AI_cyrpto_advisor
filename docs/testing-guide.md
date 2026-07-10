@@ -207,12 +207,13 @@ Security-sensitive paths (auth, onboarding, feedback, providers) need negative t
 
 ## 7. Flaky tests and gotchas
 
-Record durable notes in `docs/gotchas.md` when you find them. Common themes to watch:
+Durable notes live in **[gotchas.md](./gotchas.md)**. Themes to watch:
 
 - Time-based rate limiter tests — freeze or inject clock if flakes appear.
 - Cookie assertions — parse `Set-Cookie` carefully; clear cookies between cases when reusing `client`.
 - Provider tests that accidentally call the network — always mock.
 - SQLite file DB vs memory — prefer fixtures; avoid sharing a real `instance/app.db` across tests.
+- Playwright — do not delete the e2e DB after the webServer has applied schema; use `e2e/run_backend.py` reset-before-boot.
 
 ---
 

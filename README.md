@@ -13,7 +13,7 @@ Personalized crypto investor dashboard MVP: signup/login, first-login onboarding
 
 ## Current status
 
-Phases **0–5** are on `master`. **Phase 6** (frontend screens: auth, onboarding, dashboard + votes) is implemented on `phase/6-frontend`. Phase 7 (hardening) is next. See [docs/roadmap.md](docs/roadmap.md).
+MVP Phases **0–7** are complete on `phase/7-hardening` (includes Phase 6 frontend + Phase 7 hardening/e2e/gotchas). Ask before merging the phase branch into `master`. See [docs/roadmap.md](docs/roadmap.md) and [docs/gotchas.md](docs/gotchas.md).
 
 ## Quick start
 
@@ -52,10 +52,17 @@ App defaults to Vite’s local URL (`http://127.0.0.1:5173` or `http://localhost
 
 ```powershell
 # backend (venv active, from repo root)
+$env:PYTHONPATH = "backend"
 pytest backend\tests
 
 # frontend
 cd frontend
+npm test
+
+# browser e2e
+cd e2e
+npm install
+npm run install:browsers   # once
 npm test
 ```
 
@@ -68,10 +75,11 @@ Full details: [docs/testing-guide.md](docs/testing-guide.md).
 | [docs/developer-guide.md](docs/developer-guide.md) | Setup, layout, API, env, git workflow |
 | [docs/providers.md](docs/providers.md) | Add or swap dashboard providers (registry + env) |
 | [docs/testing-guide.md](docs/testing-guide.md) | How to run/write tests, fixtures, gates |
+| [docs/gotchas.md](docs/gotchas.md) | Auth, providers, e2e, and ops pitfalls |
 | [docs/mvp-architecture.md](docs/mvp-architecture.md) | Architecture and security baseline |
 | [docs/roadmap.md](docs/roadmap.md) | Phased implementation plan (P0–P7) |
 
-## Core user flow (target MVP)
+## Core user flow (MVP)
 
 1. Signup / login  
 2. First-login onboarding quiz  

@@ -167,20 +167,16 @@ Slice P6-S3: Dashboard page and panels
 ### Phase 7 - Hardening and Delivery
 **Objective:** Ensure MVP reliability and handoff readiness.
 
-Slice P7-S1: Validation + security pass
-- Ensure strict input validation on auth/onboarding/feedback routes.
-- Ensure no unsafe HTML rendering patterns.
-- Test: negative tests for malformed payloads and unauthorized access.
+**Status:** Done on `phase/7-hardening` (ask before merge to `master`).
 
-Slice P7-S2: Final test gate
-- Run all backend unit tests, frontend tests, and e2e tests.
-- Fix unstable tests and record stability notes.
-- Checkpoint: all required suites pass.
+Slice P7-S1: Validation + security pass — done
+- Safe global 404/500 envelopes; sanitized provider client errors; cookie/session negative tests.
 
-Slice P7-S3: Release notes + gotchas
-- File: `docs/gotchas.md` (or append to existing notes)
-- Include API-limit behavior, auth/session pitfalls, flaky-test notes.
-- Checkpoint: concise runbook exists for next iteration.
+Slice P7-S2: Final test gate — done
+- Playwright critical path in `e2e/`; full backend + frontend + e2e suites green.
+
+Slice P7-S3: Release notes + gotchas — done
+- File: [docs/gotchas.md](./gotchas.md)
 
 ## Dependency Flow
 ```mermaid

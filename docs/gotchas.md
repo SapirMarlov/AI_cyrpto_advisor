@@ -1,0 +1,55 @@
+# Gotchas and MVP runbook
+
+Short operational notes for the next iteration. Prefer fixing the root cause when practical; keep this file for durable pitfalls.
+
+---
+
+## Auth and sessions
+
+- Session cookie is `HttpOnly`, `SameSite=Lax`, and `Secure` **only when** `FLASK_ENV=production`. Local HTTP clients need `Secure=False` (default in development / tests).
+- Frontend must call the API with `credentials: "include"`. Do not store session tokens in `localStorage` / `sessionStorage` (theme preference is the only localStorage use).
+- Idle timeout is 24h (`last_active_at`); absolute lifetime is 7d from `created_at`. Sliding renewal cannot extend past the absolute cap.
+- Logout deletes the server-side session row and clears the cookie. A stolen cookie after logout is useless.
+- CORS: Vite origin must appear in `CORS_ORIGINS`. Prefer `127.0.0.1` over `localhost` on Windows so the browser does not hit IPv6 `::1` while Flask listens on IPv4.
+
+## Rate limiting
+
+- Login rate limit is **in-memory** (IP + email). It resets when the Flask process restarts and is **not** shared across workers.
+- Signup is not rate-limited in the MVP. Add if abuse appears.
+- Failed-login tests can flake if the window is time-based and the clock is not controlled — inject or freeze time if that shows up.
+
+## Providers
+
+- Every section uses live → cache → static fallback. Client-facing section errors are generic (`Provider temporarily unavailable`); details stay in server logs.
+- Timeouts default to `PROVIDER_HTTP_TIMEOUT` (5s). Cache TTL is `PROVIDER_CACHE_TTL` (300s).
+- Keys: `GEMINI_API_KEY` required for `AI_PROVIDER=gemini` and `MEME_PROVIDER=reddit_gemini`. `CRYPTOPANIC_API_KEY` only for `NEWS_PROVIDER=cryptopanic`. CoinGecko works keyless; demo/pro keys raise limits.
+- Offline / Playwright: set `PRICE_PROVIDER=static`, `NEWS_PROVIDER=static`, `AI_PROVIDER=template`, `MEME_PROVIDER=static`.
+- Reddit anonymous rate limits (HTTP 429) are common if too many subreddits are configured — keep `REDDIT_MEME_SUBREDDITS` short.
+
+## Frontend
+
+- Theme preference is stored in `localStorage`; auth is cookie-only.
+- Feedback votes are optimistic and **not** hydrated on dashboard reload (no `GET /api/feedback/votes` yet).
+- Vote `item_id` derivation: news → `url`; meme → `permalink` (fallback `image_url`); insight → `insight-{YYYY-MM-DD}` from `generated_at`. Prices are not votable.
+- Panel errors are independent — one failed section must not blank the whole dashboard.
+
+## Testing
+
+- Backend: activate `.venv` and set `PYTHONPATH=backend` (or run from an env that already imports `app`).
+- Prefer pytest fixtures / temp DB — do not share `backend/instance/app.db` with the test suite.
+- Playwright (`e2e/`): `npm install`, `npm run install:browsers` once, then `npm test`. It starts Flask + Vite (frontend on **5174** to avoid clashing with a normal `npm run dev` on 5173) and uses a temp SQLite file under `e2e/.tmp/`.
+- Do not delete the e2e DB after the webServer has already applied schema; `e2e/run_backend.py` resets the file **before** `create_app()`.
+- Cookie assertions: parse `Set-Cookie` carefully; clear cookies between cases when reusing the Flask test `client`.
+- Provider unit tests must mock HTTP — never hit live networks in pytest/Vitest.
+
+## Secrets and config
+
+- Never commit `.env`. Copy from `backend/.env.example` / `frontend/.env.example`.
+- Set a strong `SECRET_KEY` outside local play. The dev default is intentional for convenience only.
+- Unhandled exceptions return a safe `{ ok: false, error: { code: "internal_error", ... } }` envelope — no stack traces to clients. Keep `DEBUG` off in production.
+
+## Manual smoke (demo)
+
+1. `python backend\run.py` and `cd frontend; npm run dev`
+2. Signup → onboarding → dashboard → thumbs up on a news item → log out
+3. Optionally unset provider keys to confirm section fallbacks still render
