@@ -1,0 +1,47 @@
+---
+description: Keep README, developer guide, and testing guide updated when project contracts or setup change
+alwaysApply: true
+---
+
+# Documentation Maintenance
+
+## Required docs
+
+- Root `README.md` — product overview, stack, quick start, status, links
+- `docs/developer-guide.md` — setup, layout, env, API, git workflow, progress snapshot
+- `docs/testing-guide.md` — how to run/write tests, fixtures, suite inventory, gates
+
+Do not invent extra top-level docs unless the user asks. Prefer updating these three plus existing `docs/roadmap.md` / `docs/mvp-architecture.md`.
+
+## When to update (same PR / same slice when practical)
+
+Update **README** and/or **developer guide** if the change affects any of:
+
+- How to install, run, or test (commands, ports, venv, Node/Python versions)
+- Environment variables or secrets setup (also refresh `.env.example` when it exists)
+- Public API paths, auth requirements, or response envelope shape
+- Repository folder layout or major module responsibilities
+- Roadmap phase status (mark phases done / next in the developer guide snapshot and README status blurb)
+- Git workflow or Definition of Done that contributors must follow
+
+Update **testing guide** if the change affects any of:
+
+- How to run backend or frontend tests (commands, config files, runners)
+- Shared fixtures, test layout, or naming conventions
+- Required coverage per slice (e.g. new provider failure-path rules)
+- Suite inventory (add/remove modules in the snapshot tables)
+- e2e runner choice or critical-flow checklist when those land
+
+## When not required
+
+- Pure refactors with no behavior or setup change
+- Internal-only renames that do not change public contracts
+- Adding a single test that follows existing patterns without new runners/fixtures (optional: still refresh the suite inventory table)
+- Cursor plan files under `.cursor/plans/` (those are working notes, not user-facing docs)
+
+## How to update
+
+- Keep README short; put detail in `docs/developer-guide.md` and `docs/testing-guide.md`.
+- Match commands to this repo’s OS defaults (PowerShell examples are fine; note equivalents only if needed).
+- Reflect **actual** implemented APIs and test modules vs planned ones — do not document unfinished endpoints or suites as live.
+- After Phase 7 (or earlier if useful), append durable pitfalls to `docs/gotchas.md` and link from the developer / testing guides.
