@@ -71,7 +71,11 @@ describe("DashboardPage", () => {
           prices: {
             data: {
               prices: {
-                bitcoin: { usd: 65000, change_24h: 1.5 },
+                bitcoin: {
+                  usd: 65000,
+                  change_24h: 1.5,
+                  sparkline_7d: [64000, 65000],
+                },
               },
             },
             error: null,

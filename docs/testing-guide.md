@@ -169,6 +169,7 @@ Config: `frontend/vite.config.ts` (`environment: "jsdom"`, `setupFiles: ./src/te
 | `src/pages/Login.test.tsx` | Login error + success navigation |
 | `src/pages/Onboarding.test.tsx` | Load questions, submit, errors |
 | `src/pages/Dashboard.test.tsx` | Mixed section render + vote paths |
+| `src/components/dashboard/PricesPanel.test.tsx` | List/chart view toggle + missing sparkline |
 | `src/components/dashboard/VoteButtons.test.tsx` | Optimistic vote + error revert |
 | `src/components/dashboard/itemIds.test.ts` | Client `item_id` derivation |
 

@@ -83,6 +83,7 @@ export type NewsData = {
 export type PriceQuote = {
   usd: number | null;
   change_24h: number | null;
+  sparkline_7d?: number[] | null;
   [key: string]: unknown;
 };
 
