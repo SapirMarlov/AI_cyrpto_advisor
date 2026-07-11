@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
@@ -18,6 +19,27 @@ vi.mock("@/services/apiClient", async () => {
     logout: vi.fn(),
   };
 });
+
+vi.mock("@/components/SplitText", () => ({
+  default: function MockSplitText({
+    text,
+    tag = "p",
+    className,
+    onLetterAnimationComplete,
+  }: {
+    text: string;
+    tag?: keyof HTMLElementTagNameMap;
+    className?: string;
+    onLetterAnimationComplete?: () => void;
+  }) {
+    useEffect(() => {
+      onLetterAnimationComplete?.();
+    }, [onLetterAnimationComplete]);
+
+    const Tag = tag;
+    return <Tag className={className}>{text}</Tag>;
+  },
+}));
 
 const meMock = vi.mocked(apiClient.me);
 const loginMock = vi.mocked(apiClient.login);
