@@ -338,7 +338,7 @@ Update this table when a phase lands on `master` or a phase branch is the active
 | 5 | Feedback voting API | Done |
 | 6 | Frontend screens | Done |
 | 7 | Hardening + delivery | Done |
-| 8 | Public deploy (Vercel + Render) | On `phase/8-public-deploy` |
+| 8 | Public deploy (Vercel + Render) | Done (scaffolding on `master`; fill Render hostname + CORS for live) |
 
 ---
 

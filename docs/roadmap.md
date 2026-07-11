@@ -181,7 +181,7 @@ Slice P7-S3: Release notes + gotchas — done
 ### Phase 8 - Public deployment
 **Objective:** Ship the MVP on Vercel (SPA) + Render (API) with durable SQLite and working session cookies.
 
-**Status:** In progress on `phase/8-public-deploy` (merge to `master` only with approval).
+**Status:** Done on `master` (scaffolding + docs; replace `YOUR-RENDER-SERVICE` / set `CORS_ORIGINS` for a live deploy).
 
 Slice P8-S1: Production WSGI entry — done
 - Files: `backend/requirements.txt` (gunicorn), `backend/run.py` (`PORT`), `backend/app/config.py` / `__init__.py` (reject default `SECRET_KEY` in production), `backend/.env.example` (`DATABASE_PATH`)
