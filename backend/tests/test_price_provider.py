@@ -11,25 +11,29 @@ def _provider(config=None):
     return CoinGeckoPriceProvider(config or TestConfig)
 
 
-def test_price_provider_success_maps_full_simple_price_fields():
+def test_price_provider_success_maps_markets_fields_and_sparkline():
     response = MagicMock()
     response.status_code = 200
-    response.json.return_value = {
-        "bitcoin": {
-            "usd": 65000.1,
-            "usd_market_cap": 1.2e12,
-            "usd_24h_vol": 2.8e10,
-            "usd_24h_change": 1.5,
-            "last_updated_at": 1783680167,
+    response.json.return_value = [
+        {
+            "id": "bitcoin",
+            "current_price": 65000.1,
+            "market_cap": 1.2e12,
+            "total_volume": 2.8e10,
+            "price_change_percentage_24h": 1.5,
+            "last_updated": "2026-07-10T12:00:00.000Z",
+            "sparkline_in_7d": {"price": [64000.0, 64500.5, 65000.1]},
         },
-        "ethereum": {
-            "usd": 3200.0,
-            "usd_market_cap": 3.8e11,
-            "usd_24h_vol": 1.1e10,
-            "usd_24h_change": -0.4,
-            "last_updated_at": 1783680167,
+        {
+            "id": "ethereum",
+            "current_price": 3200.0,
+            "market_cap": 3.8e11,
+            "total_volume": 1.1e10,
+            "price_change_percentage_24h": -0.4,
+            "last_updated": "2026-07-10T12:00:00.000Z",
+            "sparkline_in_7d": {"price": [3210.0, 3190.0, 3200.0]},
         },
-    }
+    ]
     provider = _provider()
     context = {"interested_assets": ["bitcoin", "ethereum"]}
 
@@ -40,14 +44,13 @@ def test_price_provider_success_maps_full_simple_price_fields():
     assert data["prices"]["bitcoin"]["change_24h"] == 1.5
     assert data["prices"]["bitcoin"]["market_cap"] == 1.2e12
     assert data["prices"]["bitcoin"]["volume_24h"] == 2.8e10
-    assert data["prices"]["bitcoin"]["last_updated_at"] == 1783680167
+    assert data["prices"]["bitcoin"]["last_updated_at"] == "2026-07-10T12:00:00.000Z"
+    assert data["prices"]["bitcoin"]["sparkline_7d"] == [64000.0, 64500.5, 65000.1]
     assert data["prices"]["ethereum"]["usd"] == 3200.0
 
     _, kwargs = get.call_args
-    assert kwargs["params"]["include_market_cap"] == "true"
-    assert kwargs["params"]["include_24hr_vol"] == "true"
-    assert kwargs["params"]["include_24hr_change"] == "true"
-    assert kwargs["params"]["include_last_updated_at"] == "true"
+    assert kwargs["params"]["vs_currency"] == "usd"
+    assert kwargs["params"]["sparkline"] == "true"
     assert "User-Agent" in kwargs["headers"]
 
 
@@ -85,7 +88,7 @@ def test_price_provider_malformed_payload():
     response.json.return_value = {"unexpected": True}
     provider = _provider()
     with patch("app.providers.price_provider.requests.get", return_value=response):
-        with pytest.raises(ValueError, match="missing usable"):
+        with pytest.raises(ValueError, match="malformed"):
             provider.fetch({"interested_assets": ["bitcoin"]})
 
 
@@ -94,6 +97,7 @@ def test_price_provider_static_fallback():
     assert data["fallback"] is True
     assert data["prices"]["solana"]["usd"] is None
     assert data["prices"]["solana"]["market_cap"] is None
+    assert data["prices"]["solana"]["sparkline_7d"] is None
 
 
 def test_request_settings_demo_key():
@@ -103,6 +107,7 @@ def test_request_settings_demo_key():
         COINGECKO_USER_AGENT = "test-agent"
 
     url, headers = _request_settings(DemoConfig())
+    assert url.endswith("/coins/markets")
     assert url.startswith("https://api.coingecko.com/")
     assert headers["x-cg-demo-api-key"] == "demo-key"
     assert headers["User-Agent"] == "test-agent"
@@ -115,6 +120,7 @@ def test_request_settings_pro_key_preferred():
         COINGECKO_USER_AGENT = "test-agent"
 
     url, headers = _request_settings(ProConfig())
+    assert url.endswith("/coins/markets")
     assert url.startswith("https://pro-api.coingecko.com/")
     assert headers["x-cg-pro-api-key"] == "pro-key"
     assert "x-cg-demo-api-key" not in headers

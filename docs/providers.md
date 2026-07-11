@@ -184,12 +184,15 @@ Keep these shapes stable so the dashboard service and future UI stay compatible.
       "change_24h": 1.2,
       "market_cap": 1.2e12,
       "volume_24h": 1e10,
-      "last_updated_at": 1710000000,
-      "coingecko_id": "bitcoin"
+      "last_updated_at": "2026-07-10T12:00:00.000Z",
+      "coingecko_id": "bitcoin",
+      "sparkline_7d": [59000, 59500, 60000]
     }
   }
 }
 ```
+
+`sparkline_7d` is an optional array of USD samples from CoinGecko’s 7-day sparkline (used by the dashboard chart view).
 
 **News**
 
