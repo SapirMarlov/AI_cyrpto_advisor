@@ -4,3 +4,4 @@ pytest
 bcrypt
 requests
 python-dotenv
+gunicorn

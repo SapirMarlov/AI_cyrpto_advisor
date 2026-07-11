@@ -9,6 +9,9 @@ try:
 except ImportError:
     pass
 
+# Dev default only — production must set a strong SECRET_KEY via env.
+DEFAULT_SECRET_KEY = "dev-secret-change-in-production"
+
 
 class Config:
     """Default app settings from environment variables."""
@@ -17,7 +20,7 @@ class Config:
     TESTING = False
     DEBUG = ENV == "development"
     DATABASE_PATH = os.getenv("DATABASE_PATH", str(Path("backend") / "instance" / "app.db"))
-    SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-change-in-production")
+    SECRET_KEY = os.getenv("SECRET_KEY", DEFAULT_SECRET_KEY)
     SESSION_COOKIE_NAME = "session_id"
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Lax"

@@ -2,7 +2,7 @@ from flask import Flask
 from flask_cors import CORS
 from werkzeug.exceptions import HTTPException
 
-from app.config import Config, TestConfig
+from app.config import DEFAULT_SECRET_KEY, Config, TestConfig
 from app.db import init_db
 from app.db.connection import close_db
 from app.routes.auth_routes import auth_bp, init_auth_routes
@@ -21,6 +21,14 @@ def create_app(config_class=None):
         resolved_config = TestConfig
 
     app.config.from_object(resolved_config)
+    if (
+        app.config.get("ENV") == "production"
+        and not app.config.get("TESTING")
+        and app.config.get("SECRET_KEY") == DEFAULT_SECRET_KEY
+    ):
+        raise RuntimeError(
+            "SECRET_KEY must be set to a non-default value when FLASK_ENV=production"
+        )
     CORS(
         app,
         origins=app.config["CORS_ORIGINS"],
