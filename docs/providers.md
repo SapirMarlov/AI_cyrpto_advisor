@@ -196,6 +196,8 @@ Keep these shapes stable so the dashboard service and future UI stay compatible.
 
 **News**
 
+Both `rss` and `cryptopanic` filter items to the user's onboarding `interested_assets` (keyword/ticker match). Cache keys include the asset list so preference changes refresh news. Default assets when unset: `bitcoin`, `ethereum`.
+
 ```json
 {
   "items": [
