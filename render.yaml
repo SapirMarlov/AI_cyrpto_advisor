@@ -1,0 +1,49 @@
+# Render Blueprint — backend API + SQLite on a persistent disk.
+# Replace CORS_ORIGINS with your Vercel URL after the frontend is live.
+# Persistent disks require a paid plan (not available on free) and force a single instance.
+# Docs: https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: ai-crypto-advisor-api
+    runtime: python
+    plan: starter
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 1 run:app
+    healthCheckPath: /api/health
+    disk:
+      name: sqlite-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_PATH
+        value: /var/data/app.db
+      - key: CORS_ORIGINS
+        sync: false
+      - key: PRICE_PROVIDER
+        value: coingecko
+      - key: NEWS_PROVIDER
+        value: rss
+      - key: AI_PROVIDER
+        value: gemini
+      - key: MEME_PROVIDER
+        value: reddit_gemini
+      - key: PROVIDER_HTTP_TIMEOUT
+        value: "5"
+      - key: PROVIDER_CACHE_TTL
+        value: "300"
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        value: gemini-flash-lite-latest
+      - key: CRYPTOPANIC_API_KEY
+        sync: false
+      - key: COINGECKO_DEMO_API_KEY
+        sync: false
+      - key: COINGECKO_PRO_API_KEY
+        sync: false
