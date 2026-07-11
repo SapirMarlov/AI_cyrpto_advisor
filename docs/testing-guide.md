@@ -117,6 +117,8 @@ Update this list when adding or removing test modules.
 | `test_cors.py` | Credentialed CORS headers for Vite origin |
 | `test_error_handler.py` | Safe 404/500 envelopes (no stack traces) |
 | `test_static_providers.py` | Offline static news/prices/meme providers |
+| `test_production_config.py` | Production rejects default `SECRET_KEY`; health under factory |
+| `test_deploy_manifests.py` | `vercel.json` rewrite + `render.yaml` disk / `DATABASE_PATH` |
 
 ### 3.5 Browser e2e (`e2e/`)
 

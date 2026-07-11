@@ -13,7 +13,7 @@ Personalized crypto investor dashboard MVP: signup/login, first-login onboarding
 
 ## Current status
 
-MVP Phases **0–7** are complete on `master`. See [docs/roadmap.md](docs/roadmap.md) and [docs/gotchas.md](docs/gotchas.md).
+MVP Phases **0–7** are complete on `master`. Phase **8** (public deploy: Vercel + Render) lives on `phase/8-public-deploy` until you approve a merge to `master`. See [docs/roadmap.md](docs/roadmap.md) and [docs/gotchas.md](docs/gotchas.md).
 
 ## Quick start
 
@@ -68,16 +68,24 @@ npm test
 
 Full details: [docs/testing-guide.md](docs/testing-guide.md).
 
+## Public deploy (Vercel + Render)
+
+- **Frontend:** Vercel, root `frontend`, rewrite `/api/*` → Render ([`frontend/vercel.json`](frontend/vercel.json)).
+- **Backend:** Render + gunicorn ([`render.yaml`](render.yaml)); SQLite on persistent disk at `/var/data`.
+- **Cookies:** production API base is empty so calls stay same-origin on Vercel — do not point the SPA at the Render URL.
+
+Step-by-step: [docs/developer-guide.md](docs/developer-guide.md) §3b. Cookie pitfalls: [docs/gotchas.md](docs/gotchas.md).
+
 ## Documentation
 
 | Doc | Purpose |
 | --- | --- |
-| [docs/developer-guide.md](docs/developer-guide.md) | Setup, layout, API, env, git workflow |
+| [docs/developer-guide.md](docs/developer-guide.md) | Setup, layout, API, env, git workflow, deploy |
 | [docs/providers.md](docs/providers.md) | Add or swap dashboard providers (registry + env) |
 | [docs/testing-guide.md](docs/testing-guide.md) | How to run/write tests, fixtures, gates |
-| [docs/gotchas.md](docs/gotchas.md) | Auth, providers, e2e, and ops pitfalls |
+| [docs/gotchas.md](docs/gotchas.md) | Auth, providers, e2e, deploy, and ops pitfalls |
 | [docs/mvp-architecture.md](docs/mvp-architecture.md) | Architecture and security baseline |
-| [docs/roadmap.md](docs/roadmap.md) | Phased implementation plan (P0–P7) |
+| [docs/roadmap.md](docs/roadmap.md) | Phased implementation plan (P0–P8) |
 
 ## Core user flow (MVP)
 

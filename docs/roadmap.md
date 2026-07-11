@@ -178,6 +178,29 @@ Slice P7-S2: Final test gate — done
 Slice P7-S3: Release notes + gotchas — done
 - File: [docs/gotchas.md](./gotchas.md)
 
+### Phase 8 - Public deployment
+**Objective:** Ship the MVP on Vercel (SPA) + Render (API) with durable SQLite and working session cookies.
+
+**Status:** In progress on `phase/8-public-deploy` (merge to `master` only with approval).
+
+Slice P8-S1: Production WSGI entry — done
+- Files: `backend/requirements.txt` (gunicorn), `backend/run.py` (`PORT`), `backend/app/config.py` / `__init__.py` (reject default `SECRET_KEY` in production), `backend/.env.example` (`DATABASE_PATH`)
+- Test: `backend/tests/test_production_config.py`
+- Checkpoint: `gunicorn --bind 0.0.0.0:$PORT --workers 1 run:app` from `backend/`
+
+Slice P8-S2: Same-origin frontend API base — done
+- Files: `frontend/src/services/apiClient.ts`, `frontend/.env.production` (empty `VITE_API_BASE_URL`), `frontend/.env.development`
+- Test: empty-base URL join in `apiClient.test.ts`
+- Checkpoint: production build calls `/api/...` on the Vercel host (not Render)
+
+Slice P8-S3: Deploy manifests — done
+- Files: `frontend/vercel.json` (`/api` rewrite), `render.yaml` (gunicorn + persistent disk at `/var/data`)
+- Test: `backend/tests/test_deploy_manifests.py`
+- Checkpoint: replace `YOUR-RENDER-SERVICE` / set `CORS_ORIGINS` after first deploy
+
+Slice P8-S4: Deploy docs + cookie gotchas — done
+- Files: this roadmap, [gotchas.md](./gotchas.md), [developer-guide.md](./developer-guide.md), [README.md](../README.md)
+
 ## Dependency Flow
 ```mermaid
 flowchart TD
@@ -188,6 +211,7 @@ flowchart TD
   phase4 --> phase5[Phase5_Feedback]
   phase5 --> phase6[Phase6_Frontend]
   phase6 --> phase7[Phase7_Hardening]
+  phase7 --> phase8[Phase8_PublicDeploy]
 ```
 
 ## Definition of Done
@@ -202,4 +226,4 @@ flowchart TD
 - Personalization from vote history.
 - Better caching for provider responses.
 - Observability dashboards and alerts.
-- Deployment automation and CI optimization.
+- CI deploy automation; Postgres if SQLite disk limits are hit.

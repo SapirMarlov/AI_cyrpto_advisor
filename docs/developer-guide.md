@@ -11,6 +11,7 @@ Practical guide for working on AI Crypto Advisor. For product architecture and s
 ```
 AI Crypto advisor/
 ├── README.md                 # Overview + quick start
+├── render.yaml               # Render Blueprint (API + SQLite disk)
 ├── docs/
 │   ├── developer-guide.md    # This file
 │   ├── providers.md          # Add / swap provider implementations
@@ -19,7 +20,7 @@ AI Crypto advisor/
 │   ├── mvp-architecture.md
 │   └── roadmap.md
 ├── backend/
-│   ├── run.py                # Dev entry: Flask on :5000
+│   ├── run.py                # Dev entry / WSGI app for gunicorn
 │   ├── requirements.txt
 │   ├── .env                  # Local secrets (gitignored)
 │   ├── app/
@@ -36,7 +37,10 @@ AI Crypto advisor/
 ├── frontend/
 │   ├── package.json
 │   ├── vite.config.ts
-│   ├── .env.example          # VITE_API_BASE_URL
+│   ├── vercel.json           # /api rewrite → Render
+│   ├── .env.development      # VITE_API_BASE_URL → local Flask
+│   ├── .env.production       # empty VITE_API_BASE_URL (same-origin /api)
+│   ├── .env.example
 │   └── src/
 │       ├── App.tsx           # Router + guards
 │       ├── main.tsx
@@ -88,8 +92,8 @@ Secrets live in `backend/.env` (gitignored). Prefer documenting new keys in `bac
 | Variable | Where | Default / notes |
 | --- | --- | --- |
 | `FLASK_ENV` | backend | `development` — sets `DEBUG` and cookie `Secure` in production |
-| `SECRET_KEY` | backend | Dev default in config; **set a strong value** outside local play |
-| `DATABASE_PATH` | backend | `backend/instance/app.db` |
+| `SECRET_KEY` | backend | Dev default in config; **required** (non-default) when `FLASK_ENV=production` |
+| `DATABASE_PATH` | backend | Local: `backend/instance/app.db`; Render disk: `/var/data/app.db` |
 | `TEST_DATABASE_PATH` | backend tests | In-memory SQLite URI when unset |
 | `PRICE_PROVIDER` | backend | `coingecko` — see [providers.md](./providers.md) |
 | `NEWS_PROVIDER` | backend | `rss` (Cointelegraph; or `cryptopanic`) |
@@ -100,8 +104,8 @@ Secrets live in `backend/.env` (gitignored). Prefer documenting new keys in `bac
 | `GEMINI_API_KEY` | backend | Required for `AI_PROVIDER=gemini` and meme selection |
 | `CRYPTOPANIC_API_KEY` | backend | Required for `NEWS_PROVIDER=cryptopanic` |
 | `COINGECKO_DEMO_API_KEY` / `COINGECKO_PRO_API_KEY` | backend | Optional; public API works without keys |
-| `CORS_ORIGINS` | backend | Comma-separated origins; default `http://localhost:5173,http://127.0.0.1:5173` |
-| `VITE_API_BASE_URL` | frontend | `http://127.0.0.1:5000` (prefer over `localhost` on Windows/IPv6) |
+| `CORS_ORIGINS` | backend | Comma-separated origins; default Vite localhost; prod = Vercel URL |
+| `VITE_API_BASE_URL` | frontend | Dev: `http://127.0.0.1:5000`; prod: **empty** (same-origin `/api` via Vercel rewrite) |
 
 Session policy (code defaults in `backend/app/config.py`):
 
@@ -150,6 +154,33 @@ API client uses `credentials: "include"` so session cookies work cross-origin in
 | `npm run dev` (in `frontend`) | Vite dev server |
 | `npm test` (in `frontend`) | Vitest once |
 | `npm run build` (in `frontend`) | Typecheck + production build |
+
+---
+
+## 3b. Public deploy (Vercel + Render)
+
+Architecture: browser → Vercel SPA → rewrite `/api/*` → Render Flask → SQLite on persistent disk. Session cookies stay first-party on the Vercel host (`SameSite=Lax`).
+
+### Render (API)
+
+1. Deploy from [`render.yaml`](../render.yaml) (Blueprint) or create a Python web service with **Root Directory** `backend`.
+2. Start command: `gunicorn --bind 0.0.0.0:$PORT --workers 1 run:app`
+3. Attach a persistent disk at `/var/data` and set `DATABASE_PATH=/var/data/app.db` (required — otherwise SQLite is wiped on restart).
+4. Set `FLASK_ENV=production`, a generated `SECRET_KEY`, `CORS_ORIGINS=https://YOUR-APP.vercel.app`, and provider keys as needed.
+5. Confirm `GET https://YOUR-RENDER-SERVICE.onrender.com/api/health`.
+
+Note: persistent disks need a paid Render plan and force a **single** instance. Keep `--workers 1` while using SQLite.
+
+### Vercel (frontend)
+
+1. Import the repo; set **Root Directory** to `frontend`.
+2. Edit [`frontend/vercel.json`](../frontend/vercel.json): replace `YOUR-RENDER-SERVICE.onrender.com` with your Render hostname.
+3. Build uses `frontend/.env.production` (`VITE_API_BASE_URL` empty). Do **not** point the SPA at the Render URL for cookie auth.
+4. After the Vercel URL is known, update Render `CORS_ORIGINS` if you change the domain.
+
+### Smoke checklist
+
+Signup → onboarding → dashboard → vote → logout on the Vercel URL. Cookie `session_id` must belong to the Vercel host. Full pitfalls: [gotchas.md](./gotchas.md).
 
 ---
 
@@ -307,6 +338,7 @@ Update this table when a phase lands on `master` or a phase branch is the active
 | 5 | Feedback voting API | Done |
 | 6 | Frontend screens | Done |
 | 7 | Hardening + delivery | Done |
+| 8 | Public deploy (Vercel + Render) | On `phase/8-public-deploy` |
 
 ---
 
@@ -317,7 +349,8 @@ See **[gotchas.md](./gotchas.md)** for the full runbook. Highlights:
 - **Wrong Python env:** always activate `.venv` before `pip` / `pytest` / `run.py`.
 - **Running Flask from wrong cwd:** `DATABASE_PATH` default is relative (`backend/instance/app.db`); prefer running from repo root as documented.
 - **Session cookies in browser:** frontend must use `credentials: "include"`; cookie is not in `localStorage`.
+- **Deploy cookies:** empty production `VITE_API_BASE_URL` + Vercel `/api` rewrite; never use the Render URL as the SPA API base with `SameSite=Lax`.
 - **CORS in local dev:** Vite origin must be listed in `CORS_ORIGINS`; Flask uses `supports_credentials=True`.
 - **Provider failures:** never let third-party exceptions bubble to the route; use section-level fallbacks.
-- **Secrets:** `.env` is gitignored; rotate any key that was ever committed or pasted into chat logs.
+- **Secrets:** `.env` is gitignored; rotate any key that was ever committed or pasted into chat logs. Production rejects the default `SECRET_KEY`.
 - **e2e ports:** Playwright serves the UI on `5174` so it does not clash with a normal Vite `5173` session.

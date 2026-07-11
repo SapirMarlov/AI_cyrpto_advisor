@@ -11,10 +11,12 @@ Short operational notes for the next iteration. Prefer fixing the root cause whe
 - Idle timeout is 24h (`last_active_at`); absolute lifetime is 7d from `created_at`. Sliding renewal cannot extend past the absolute cap.
 - Logout deletes the server-side session row and clears the cookie. A stolen cookie after logout is useless.
 - CORS: Vite origin must appear in `CORS_ORIGINS`. Prefer `127.0.0.1` over `localhost` on Windows so the browser does not hit IPv6 `::1` while Flask listens on IPv4.
+- **Deploy (Vercel + Render):** keep cookies first-party via the Vercel `/api` rewrite. Production `VITE_API_BASE_URL` must be **empty** so the browser calls `https://your-app.vercel.app/api/...`. Do **not** set `VITE_API_BASE_URL` to the Render URL — with `SameSite=Lax`, cross-site credentialed fetches will not keep the session. Do not set cookie `Domain` (host-only on the Vercel host). Still set `CORS_ORIGINS` to the Vercel origin for direct API hits / safety.
 
 ## Rate limiting
 
 - Login rate limit is **in-memory** (IP + email). It resets when the Flask process restarts and is **not** shared across workers.
+- Production uses **one** gunicorn worker while SQLite lives on a Render disk; more workers would not share the rate-limit map and can contend on SQLite.
 - Signup is not rate-limited in the MVP. Add if abuse appears.
 - Failed-login tests can flake if the window is time-based and the clock is not controlled — inject or freeze time if that shows up.
 
@@ -46,9 +48,15 @@ Short operational notes for the next iteration. Prefer fixing the root cause whe
 
 ## Secrets and config
 
-- Never commit `.env`. Copy from `backend/.env.example` / `frontend/.env.example`.
-- Set a strong `SECRET_KEY` outside local play. The dev default is intentional for convenience only.
+- Never commit `.env`. Copy from `backend/.env.example` / `frontend/.env.example`. Committed Vite mode files: `frontend/.env.development` and `frontend/.env.production` (empty API base).
+- Set a strong `SECRET_KEY` outside local play. Production **refuses to start** if `SECRET_KEY` is still the hardcoded default.
 - Unhandled exceptions return a safe `{ ok: false, error: { code: "internal_error", ... } }` envelope — no stack traces to clients. Keep `DEBUG` off in production.
+
+## Public deploy (Vercel + Render)
+
+1. **Render:** apply [`render.yaml`](../render.yaml) (or create a web service with `rootDir: backend`, gunicorn start, disk mount `/var/data`, `DATABASE_PATH=/var/data/app.db`). Set `CORS_ORIGINS` to your Vercel URL and provider keys. Persistent disks need a paid plan and a single instance.
+2. **Vercel:** project root = `frontend`. Replace `YOUR-RENDER-SERVICE` in [`frontend/vercel.json`](../frontend/vercel.json) with the Render hostname. Build uses empty `VITE_API_BASE_URL` from `.env.production`.
+3. **Smoke:** signup → onboarding → dashboard → vote → logout on the Vercel URL. Confirm `session_id` is set for the Vercel host (Application → Cookies), not for `onrender.com`.
 
 ## Manual smoke (demo)
 
