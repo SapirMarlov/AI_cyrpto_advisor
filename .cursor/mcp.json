@@ -1,7 +1,18 @@
 {
   "mcpServers": {
     "coingecko": {
-      "url": "https://mcp.api.coingecko.com/mcp"
+      "command": "npx",
+      "args": [
+        "mcp-remote",
+        "https://mcp.api.coingecko.com/mcp"
+      ]
+    },
+    "shadcn": {
+      "command": "npx",
+      "args": [
+        "shadcn@latest",
+        "mcp"
+      ]
     }
   }
 }
