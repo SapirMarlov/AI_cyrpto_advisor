@@ -58,7 +58,7 @@ export function DashboardPage() {
         <div>
           <h1 className="text-3xl font-semibold tracking-tight">AI Crypto Advisor</h1>
           <p className="text-muted-foreground text-sm">
-            {user?.email ? `Signed in as ${user.email}` : "Your daily crypto briefing"}
+            {user?.name ? `Signed in as ${user.name}` : "Your daily crypto briefing"}
           </p>
         </div>
         <Button type="button" variant="outline" onClick={() => void onLogout()}>

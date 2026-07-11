@@ -18,6 +18,7 @@ export type ApiEnvelope<T> = ApiSuccess<T> | ApiError;
 export type User = {
   id: number;
   email: string;
+  name: string;
 };
 
 export type AuthUserData = {
@@ -200,10 +201,11 @@ export async function getHealth(): Promise<ApiEnvelope<{ status: string }>> {
 export async function signup(
   email: string,
   password: string,
+  name: string,
 ): Promise<ApiEnvelope<AuthUserData>> {
   return request<AuthUserData>("/api/auth/signup", {
     method: "POST",
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ email, password, name }),
   });
 }
 

@@ -3,7 +3,7 @@ from app.repositories.users_repository import create_user
 
 
 def _create_user(db_conn, email: str) -> dict:
-    return create_user(db_conn, email, "hashed-password")
+    return create_user(db_conn, email, "hashed-password", "Test User")
 
 
 def test_save_preferences_creates_row(db_conn):

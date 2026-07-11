@@ -172,7 +172,7 @@ def test_me_reflects_onboarding_completion(client):
 def _authenticate(client, email: str) -> None:
     signup_response = client.post(
         "/api/auth/signup",
-        json={"email": email, "password": "password123"},
+        json={"email": email, "password": "password123", "name": "Test User"},
     )
     client.set_cookie(
         "session_id",

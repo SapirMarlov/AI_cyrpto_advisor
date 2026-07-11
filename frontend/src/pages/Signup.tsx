@@ -17,6 +17,7 @@ import { Label } from "@/components/ui/label";
 export function SignupPage() {
   const { signup } = useAuth();
   const navigate = useNavigate();
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fieldError, setFieldError] = useState<string | null>(null);
@@ -27,14 +28,16 @@ export function SignupPage() {
     event.preventDefault();
     setServerError(null);
 
-    if (!email.trim() || password.length < 8) {
-      setFieldError("Enter a valid email and a password of at least 8 characters.");
+    if (!name.trim() || !email.trim() || password.length < 8) {
+      setFieldError(
+        "Enter your name, a valid email, and a password of at least 8 characters.",
+      );
       return;
     }
 
     setFieldError(null);
     setPending(true);
-    const result = await signup(email.trim(), password);
+    const result = await signup(email.trim(), password, name.trim());
     setPending(false);
 
     if (!result.ok) {
@@ -58,10 +61,22 @@ export function SignupPage() {
         <Card className="transition-shadow duration-300">
           <CardHeader>
             <CardTitle>Sign up</CardTitle>
-            <CardDescription>Choose an email and a secure password.</CardDescription>
+            <CardDescription>Choose a name, email, and a secure password.</CardDescription>
           </CardHeader>
           <form onSubmit={onSubmit}>
             <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="signup-name">Name</Label>
+                <Input
+                  id="signup-name"
+                  type="text"
+                  autoComplete="name"
+                  value={name}
+                  onChange={(event) => setName(event.target.value)}
+                  disabled={pending}
+                  required
+                />
+              </div>
               <div className="space-y-2">
                 <Label htmlFor="signup-email">Email</Label>
                 <Input

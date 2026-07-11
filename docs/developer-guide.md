@@ -199,7 +199,7 @@ Helpers: `backend/app/utils/response.py`. Frontend types: `frontend/src/services
 | Method | Path | Auth | Notes |
 | --- | --- | --- | --- |
 | `GET` | `/api/health` | No | Smoke / readiness |
-| `POST` | `/api/auth/signup` | No | Body: `{ email, password }` → 201 + session cookie |
+| `POST` | `/api/auth/signup` | No | Body: `{ email, password, name }` → 201 + session cookie |
 | `POST` | `/api/auth/login` | No | Body: `{ email, password }`; rate limited |
 | `POST` | `/api/auth/logout` | Session | Clears server session + cookie |
 | `GET` | `/api/auth/me` | Session | Current user + onboarding state |

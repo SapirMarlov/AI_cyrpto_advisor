@@ -1,5 +1,4 @@
-from app.repositories.sessions_repository import create_session, get_session
-from app.repositories.users_repository import create_user
+from app.repositories.sessions_repository import get_session
 from app.services import auth_service
 from app.services.auth_service import EmailExistsError
 
@@ -17,25 +16,26 @@ def test_verify_password_fails_safely_on_malformed_hash():
 
 
 def test_signup_creates_user_and_session(db_conn):
-    result = auth_service.signup(db_conn, "user@example.com", "password123")
+    result = auth_service.signup(db_conn, "user@example.com", "password123", "Test User")
 
     assert result["user"]["email"] == "user@example.com"
+    assert result["user"]["name"] == "Test User"
     assert result["token"]
     assert get_session(db_conn, result["token"]) is not None
 
 
 def test_signup_duplicate_email_raises(db_conn):
-    auth_service.signup(db_conn, "user@example.com", "password123")
+    auth_service.signup(db_conn, "user@example.com", "password123", "Test User")
 
     try:
-        auth_service.signup(db_conn, "USER@example.com", "password456")
+        auth_service.signup(db_conn, "USER@example.com", "password456", "Test User")
         assert False, "Expected EmailExistsError"
     except EmailExistsError:
         pass
 
 
 def test_login_returns_user_for_valid_credentials(db_conn):
-    auth_service.signup(db_conn, "user@example.com", "password123")
+    auth_service.signup(db_conn, "user@example.com", "password123", "Test User")
 
     result = auth_service.login(db_conn, "user@example.com", "password123")
 
@@ -45,14 +45,14 @@ def test_login_returns_user_for_valid_credentials(db_conn):
 
 
 def test_login_returns_none_for_invalid_credentials(db_conn):
-    auth_service.signup(db_conn, "user@example.com", "password123")
+    auth_service.signup(db_conn, "user@example.com", "password123", "Test User")
 
     assert auth_service.login(db_conn, "user@example.com", "wrong-password") is None
     assert auth_service.login(db_conn, "missing@example.com", "password123") is None
 
 
 def test_logout_deletes_session(db_conn):
-    result = auth_service.signup(db_conn, "user@example.com", "password123")
+    result = auth_service.signup(db_conn, "user@example.com", "password123", "Test User")
 
     auth_service.logout(db_conn, result["token"])
 
@@ -60,15 +60,19 @@ def test_logout_deletes_session(db_conn):
 
 
 def test_resolve_session_returns_user_for_valid_session(db_conn):
-    result = auth_service.signup(db_conn, "user@example.com", "password123")
+    result = auth_service.signup(db_conn, "user@example.com", "password123", "Test User")
 
     user = auth_service.resolve_session(db_conn, result["token"], 86400, 604800)
 
-    assert user == {"id": result["user"]["id"], "email": "user@example.com"}
+    assert user == {
+        "id": result["user"]["id"],
+        "email": "user@example.com",
+        "name": "Test User",
+    }
 
 
 def test_resolve_session_rejects_idle_expired_session(db_conn):
-    result = auth_service.signup(db_conn, "user@example.com", "password123")
+    result = auth_service.signup(db_conn, "user@example.com", "password123", "Test User")
     db_conn.execute(
         "UPDATE sessions SET last_active_at = '2000-01-01 00:00:00' WHERE id = ?",
         (result["token"],),
@@ -82,7 +86,7 @@ def test_resolve_session_rejects_idle_expired_session(db_conn):
 
 
 def test_resolve_session_rejects_absolute_expired_session(db_conn):
-    result = auth_service.signup(db_conn, "user@example.com", "password123")
+    result = auth_service.signup(db_conn, "user@example.com", "password123", "Test User")
     db_conn.execute(
         """
         UPDATE sessions

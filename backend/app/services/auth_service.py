@@ -36,13 +36,13 @@ def _parse_timestamp(value: str) -> datetime:
 
 def _public_user(user: dict) -> dict:
     """Return only public user fields."""
-    return {"id": user["id"], "email": user["email"]}
+    return {"id": user["id"], "email": user["email"], "name": user["name"]}
 
 
-def signup(conn, email: str, password: str) -> dict:
+def signup(conn, email: str, password: str, name: str) -> dict:
     """Create a user and a new session."""
     try:
-        user = create_user(conn, email, hash_password(password))
+        user = create_user(conn, email, hash_password(password), name)
     except DuplicateEmailError as exc:
         raise EmailExistsError(str(exc)) from exc
 

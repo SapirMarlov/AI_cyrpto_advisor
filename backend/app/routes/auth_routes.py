@@ -58,12 +58,20 @@ def _auth_response(user: dict, token: str, status_code: int):
 def signup():
     """Register a new user and start a session."""
     try:
-        data = validate_auth_payload(request.get_json(silent=True), {"email", "password"})
+        data = validate_auth_payload(
+            request.get_json(silent=True),
+            {"email", "password", "name"},
+        )
     except ValidationError as exc:
         return error_response("validation_error", exc.message, 400)
 
     try:
-        result = auth_service.signup(get_db(), data["email"], data["password"])
+        result = auth_service.signup(
+            get_db(),
+            data["email"],
+            data["password"],
+            data["name"],
+        )
     except EmailExistsError:
         return error_response("email_exists", "Email is already registered", 409)
 

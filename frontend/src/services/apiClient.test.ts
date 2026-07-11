@@ -104,14 +104,14 @@ describe("apiClient request wrappers", () => {
     });
     vi.stubGlobal("fetch", fetchMock);
 
-    await signup("a@b.com", "secret123");
+    await signup("a@b.com", "secret123", "Ada");
 
     expect(fetchMock).toHaveBeenCalledWith(
       expect.stringContaining("/api/auth/signup"),
       expect.objectContaining({
         method: "POST",
         credentials: "include",
-        body: JSON.stringify({ email: "a@b.com", password: "secret123" }),
+        body: JSON.stringify({ email: "a@b.com", password: "secret123", name: "Ada" }),
       }),
     );
   });

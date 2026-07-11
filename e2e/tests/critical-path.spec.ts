@@ -7,6 +7,7 @@ test("signup onboarding dashboard vote logout", async ({ page }) => {
   await page.goto("/signup");
   await expect(page.getByRole("heading", { name: "AI Crypto Advisor" })).toBeVisible();
 
+  await page.getByLabel("Name").fill("E2E User");
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password").fill(password);
   await page.getByRole("button", { name: "Create account" }).click();

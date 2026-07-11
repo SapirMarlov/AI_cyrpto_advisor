@@ -8,7 +8,7 @@ from app.repositories.users_repository import create_user
 
 
 def test_create_and_get_session(db_conn):
-    user = create_user(db_conn, "user@example.com", "hash")
+    user = create_user(db_conn, "user@example.com", "hash", "Test User")
     session = create_session(db_conn, user["id"])
 
     fetched = get_session(db_conn, session["id"])
@@ -21,7 +21,7 @@ def test_create_and_get_session(db_conn):
 
 
 def test_touch_session_updates_last_active_at(db_conn):
-    user = create_user(db_conn, "user@example.com", "hash")
+    user = create_user(db_conn, "user@example.com", "hash", "Test User")
     session = create_session(db_conn, user["id"])
 
     db_conn.execute(
@@ -37,7 +37,7 @@ def test_touch_session_updates_last_active_at(db_conn):
 
 
 def test_delete_session_removes_record(db_conn):
-    user = create_user(db_conn, "user@example.com", "hash")
+    user = create_user(db_conn, "user@example.com", "hash", "Test User")
     session = create_session(db_conn, user["id"])
 
     delete_session(db_conn, session["id"])

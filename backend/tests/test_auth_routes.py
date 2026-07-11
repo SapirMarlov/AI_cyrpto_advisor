@@ -10,7 +10,7 @@ def test_me_requires_authentication(client):
 def test_signup_login_me_and_logout_flow(client):
     signup_response = client.post(
         "/api/auth/signup",
-        json={"email": "user@example.com", "password": "password123"},
+        json={"email": "user@example.com", "password": "password123", "name": "Test User"},
     )
     signup_payload = signup_response.get_json()
     signup_cookie = signup_response.headers.get("Set-Cookie")
@@ -18,6 +18,7 @@ def test_signup_login_me_and_logout_flow(client):
     assert signup_response.status_code == 201
     assert signup_payload["ok"] is True
     assert signup_payload["data"]["user"]["email"] == "user@example.com"
+    assert signup_payload["data"]["user"]["name"] == "Test User"
     assert "session_id=" in signup_cookie
 
     client.delete_cookie("session_id")
@@ -30,6 +31,7 @@ def test_signup_login_me_and_logout_flow(client):
 
     assert me_response.status_code == 200
     assert me_payload["data"]["user"]["email"] == "user@example.com"
+    assert me_payload["data"]["user"]["name"] == "Test User"
 
     logout_response = client.post("/api/auth/logout")
     logout_payload = logout_response.get_json()
@@ -44,7 +46,7 @@ def test_signup_login_me_and_logout_flow(client):
 def test_login_with_valid_credentials(client):
     client.post(
         "/api/auth/signup",
-        json={"email": "user@example.com", "password": "password123"},
+        json={"email": "user@example.com", "password": "password123", "name": "Test User"},
     )
 
     login_response = client.post(
@@ -61,7 +63,7 @@ def test_login_with_valid_credentials(client):
 def test_login_with_invalid_credentials_returns_401(client):
     client.post(
         "/api/auth/signup",
-        json={"email": "user@example.com", "password": "password123"},
+        json={"email": "user@example.com", "password": "password123", "name": "Test User"},
     )
 
     response = client.post(
@@ -77,12 +79,12 @@ def test_login_with_invalid_credentials_returns_401(client):
 def test_signup_duplicate_email_returns_409(client):
     client.post(
         "/api/auth/signup",
-        json={"email": "user@example.com", "password": "password123"},
+        json={"email": "user@example.com", "password": "password123", "name": "Test User"},
     )
 
     response = client.post(
         "/api/auth/signup",
-        json={"email": "USER@example.com", "password": "password456"},
+        json={"email": "USER@example.com", "password": "password456", "name": "Test User"},
     )
     payload = response.get_json()
 
@@ -93,7 +95,7 @@ def test_signup_duplicate_email_returns_409(client):
 def test_signup_validation_error_for_short_password(client):
     response = client.post(
         "/api/auth/signup",
-        json={"email": "user@example.com", "password": "short"},
+        json={"email": "user@example.com", "password": "short", "name": "Test User"},
     )
     payload = response.get_json()
 
@@ -136,7 +138,7 @@ def test_login_rejects_unexpected_fields(client):
 def test_session_cookie_has_security_attributes(client):
     response = client.post(
         "/api/auth/signup",
-        json={"email": "cookie@example.com", "password": "password123"},
+        json={"email": "cookie@example.com", "password": "password123", "name": "Test User"},
     )
     set_cookie = response.headers.get("Set-Cookie", "")
 
@@ -150,7 +152,7 @@ def test_session_cookie_has_security_attributes(client):
 def test_login_rate_limited_after_repeated_failures(client):
     client.post(
         "/api/auth/signup",
-        json={"email": "user@example.com", "password": "password123"},
+        json={"email": "user@example.com", "password": "password123", "name": "Test User"},
     )
 
     for _ in range(5):

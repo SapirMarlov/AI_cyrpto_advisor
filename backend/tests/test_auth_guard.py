@@ -10,7 +10,7 @@ def test_me_requires_authentication(client):
 def test_login_required_allows_valid_session(client):
     signup_response = client.post(
         "/api/auth/signup",
-        json={"email": "user@example.com", "password": "password123"},
+        json={"email": "user@example.com", "password": "password123", "name": "Test User"},
     )
     assert signup_response.status_code == 201
 
@@ -24,7 +24,7 @@ def test_login_required_allows_valid_session(client):
 def test_login_required_rejects_expired_session(client, app):
     signup_response = client.post(
         "/api/auth/signup",
-        json={"email": "user@example.com", "password": "password123"},
+        json={"email": "user@example.com", "password": "password123", "name": "Test User"},
     )
     cookie_header = signup_response.headers.get("Set-Cookie")
     token = cookie_header.split("session_id=")[1].split(";")[0]
@@ -50,7 +50,7 @@ def test_login_required_rejects_expired_session(client, app):
 def test_login_required_rejects_absolute_expired_session(client, app):
     signup_response = client.post(
         "/api/auth/signup",
-        json={"email": "absolute@example.com", "password": "password123"},
+        json={"email": "absolute@example.com", "password": "password123", "name": "Test User"},
     )
     cookie_header = signup_response.headers.get("Set-Cookie")
     token = cookie_header.split("session_id=")[1].split(";")[0]

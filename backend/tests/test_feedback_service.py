@@ -6,7 +6,7 @@ from app.utils.validation import ValidationError, validate_feedback_vote
 
 
 def _create_user(db_conn, email: str) -> dict:
-    return create_user(db_conn, email, "hashed-password")
+    return create_user(db_conn, email, "hashed-password", "Test User")
 
 
 def test_save_vote_persists_and_returns_stored_vote(db_conn):

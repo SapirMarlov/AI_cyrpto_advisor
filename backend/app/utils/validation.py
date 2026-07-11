@@ -2,6 +2,7 @@ import re
 
 EMAIL_PATTERN = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 MIN_PASSWORD_LENGTH = 8
+MAX_NAME_LENGTH = 100
 VALID_FEEDBACK_ITEM_TYPES = {"news", "insight", "meme"}
 VALID_FEEDBACK_VOTE_TYPES = {"up", "down"}
 ALLOWED_FEEDBACK_VOTE_FIELDS = {"item_id", "item_type", "vote_type"}
@@ -41,7 +42,18 @@ def validate_auth_payload(payload: dict | None, allowed_fields: set[str]) -> dic
     if len(password) < MIN_PASSWORD_LENGTH:
         raise ValidationError(f"Password must be at least {MIN_PASSWORD_LENGTH} characters")
 
-    return {"email": normalized_email, "password": password}
+    cleaned = {"email": normalized_email, "password": password}
+
+    if "name" in allowed_fields:
+        name = payload.get("name")
+        if not isinstance(name, str) or not name.strip():
+            raise ValidationError("Name is required")
+        cleaned_name = name.strip()
+        if len(cleaned_name) > MAX_NAME_LENGTH:
+            raise ValidationError(f"Name must be at most {MAX_NAME_LENGTH} characters")
+        cleaned["name"] = cleaned_name
+
+    return cleaned
 
 
 def validate_onboarding_answers(payload: dict | None, questions: list[dict]) -> dict:

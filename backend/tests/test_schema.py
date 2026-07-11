@@ -50,15 +50,15 @@ def test_users_email_unique_constraint_exists():
     try:
         apply_schema(conn)
         conn.execute(
-            "INSERT INTO users (email, password_hash) VALUES (?, ?)",
-            ("user@example.com", "hash-one"),
+            "INSERT INTO users (email, name, password_hash) VALUES (?, ?, ?)",
+            ("user@example.com", "Test User", "hash-one"),
         )
         conn.commit()
 
         with pytest.raises(sqlite3.IntegrityError):
             conn.execute(
-                "INSERT INTO users (email, password_hash) VALUES (?, ?)",
-                ("user@example.com", "hash-two"),
+                "INSERT INTO users (email, name, password_hash) VALUES (?, ?, ?)",
+                ("user@example.com", "Test User", "hash-two"),
             )
             conn.commit()
     finally:

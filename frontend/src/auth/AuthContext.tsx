@@ -29,6 +29,7 @@ type AuthContextValue = {
   signup: (
     email: string,
     password: string,
+    name: string,
   ) => Promise<{ ok: true } | { ok: false; message: string }>;
   logout: () => Promise<void>;
   refreshMe: () => Promise<void>;
@@ -71,8 +72,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const signup = useCallback(
-    async (email: string, password: string) => {
-      const result = await apiSignup(email, password);
+    async (email: string, password: string, name: string) => {
+      const result = await apiSignup(email, password, name);
       if (!result.ok) {
         return { ok: false as const, message: result.error.message };
       }

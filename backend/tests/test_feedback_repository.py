@@ -11,7 +11,7 @@ from app.repositories.users_repository import create_user
 
 
 def _create_user(db_conn, email: str) -> dict:
-    return create_user(db_conn, email, "hashed-password")
+    return create_user(db_conn, email, "hashed-password", "Test User")
 
 
 def test_save_vote_inserts_new_vote(db_conn):

@@ -31,7 +31,7 @@ class _FailProvider(BaseProvider):
 def _authenticate(client, email: str) -> None:
     signup_response = client.post(
         "/api/auth/signup",
-        json={"email": email, "password": "password123"},
+        json={"email": email, "password": "password123", "name": "Test User"},
     )
     set_cookie = signup_response.headers.get("Set-Cookie")
     client.set_cookie(

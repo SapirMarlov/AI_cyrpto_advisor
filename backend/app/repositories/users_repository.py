@@ -15,22 +15,29 @@ def _row_to_dict(row: sqlite3.Row) -> dict:
     return {
         "id": row["id"],
         "email": row["email"],
+        "name": row["name"],
         "password_hash": row["password_hash"],
         "created_at": row["created_at"],
     }
 
 
-def create_user(conn: sqlite3.Connection, email: str, password_hash: str) -> dict:
+def create_user(
+    conn: sqlite3.Connection,
+    email: str,
+    password_hash: str,
+    name: str,
+) -> dict:
     """Create a user and return the new row."""
     normalized_email = _normalize_email(email)
+    cleaned_name = name.strip()
 
     try:
         cursor = conn.execute(
             """
-            INSERT INTO users (email, password_hash)
-            VALUES (?, ?)
+            INSERT INTO users (email, name, password_hash)
+            VALUES (?, ?, ?)
             """,
-            (normalized_email, password_hash),
+            (normalized_email, cleaned_name, password_hash),
         )
         conn.commit()
     except sqlite3.IntegrityError as exc:
@@ -43,7 +50,7 @@ def get_user_by_email(conn: sqlite3.Connection, email: str) -> dict | None:
     """Find a user by email, or return None."""
     normalized_email = _normalize_email(email)
     row = conn.execute(
-        "SELECT id, email, password_hash, created_at FROM users WHERE email = ?",
+        "SELECT id, email, name, password_hash, created_at FROM users WHERE email = ?",
         (normalized_email,),
     ).fetchone()
 
@@ -56,7 +63,7 @@ def get_user_by_email(conn: sqlite3.Connection, email: str) -> dict | None:
 def get_user_by_id(conn: sqlite3.Connection, user_id: int) -> dict | None:
     """Find a user by id, or return None."""
     row = conn.execute(
-        "SELECT id, email, password_hash, created_at FROM users WHERE id = ?",
+        "SELECT id, email, name, password_hash, created_at FROM users WHERE id = ?",
         (user_id,),
     ).fetchone()
 
