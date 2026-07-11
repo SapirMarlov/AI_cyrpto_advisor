@@ -128,7 +128,25 @@ export type VoteData = {
   updated_at: string;
 };
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://127.0.0.1:5000";
+/** Resolve API origin. Empty string = same-origin (Vercel /api rewrite). */
+export function resolveApiBaseUrl(
+  envValue: string | undefined = import.meta.env.VITE_API_BASE_URL,
+): string {
+  if (envValue === undefined) {
+    return "http://127.0.0.1:5000";
+  }
+  return envValue.replace(/\/$/, "");
+}
+
+/** Join base + path (e.g. "" + "/api/health" → "/api/health"). */
+export function buildApiUrl(
+  path: string,
+  base: string = resolveApiBaseUrl(),
+): string {
+  return `${base}${path}`;
+}
+
+const API_BASE_URL = resolveApiBaseUrl();
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -163,7 +181,7 @@ async function request<T>(
   path: string,
   options: RequestInit = {},
 ): Promise<ApiEnvelope<T>> {
-  const url = `${API_BASE_URL}${path}`;
+  const url = buildApiUrl(path, API_BASE_URL);
   try {
     const response = await fetch(url, {
       ...options,

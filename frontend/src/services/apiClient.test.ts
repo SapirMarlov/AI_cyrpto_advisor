@@ -1,6 +1,33 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { getHealth, login, parseEnvelope, signup } from "./apiClient";
+import {
+  buildApiUrl,
+  getHealth,
+  login,
+  parseEnvelope,
+  resolveApiBaseUrl,
+  signup,
+} from "./apiClient";
+
+describe("resolveApiBaseUrl / buildApiUrl", () => {
+  it("defaults undefined to local Flask origin", () => {
+    expect(resolveApiBaseUrl(undefined)).toBe("http://127.0.0.1:5000");
+  });
+
+  it("keeps empty string for same-origin production calls", () => {
+    expect(resolveApiBaseUrl("")).toBe("");
+    expect(buildApiUrl("/api/health", "")).toBe("/api/health");
+  });
+
+  it("strips a trailing slash from the base", () => {
+    expect(resolveApiBaseUrl("http://127.0.0.1:5000/")).toBe(
+      "http://127.0.0.1:5000",
+    );
+    expect(buildApiUrl("/api/health", "http://127.0.0.1:5000")).toBe(
+      "http://127.0.0.1:5000/api/health",
+    );
+  });
+});
 
 describe("parseEnvelope", () => {
   it("parses a success envelope", () => {
