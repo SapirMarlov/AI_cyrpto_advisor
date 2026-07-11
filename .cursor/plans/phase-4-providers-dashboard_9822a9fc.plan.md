@@ -4,28 +4,28 @@ overview: "Implement Phase 4: a modular, config-driven provider layer (news, pri
 todos:
   - id: p4-s1
     content: Provider base interface, run_provider fallback wrapper, provider_cache repository, and config additions with contract tests
-    status: pending
+    status: completed
   - id: p4-s0
     content: Set up CoinGecko MCP server in .cursor/mcp.json and install the CoinGecko Agent SKILL (dev tooling)
-    status: pending
+    status: completed
   - id: p4-s2
     content: Shared Gemini REST client helper (gemini_client) with timeout and error handling; add requests dep
-    status: pending
+    status: completed
   - id: p4-s3
     content: Price provider - CoinGecko REST /simple/price with fallback and mocked HTTP tests
-    status: pending
+    status: completed
   - id: p4-s4
     content: News provider - CryptoPanic (+ keyless RSS variant) with fallback and mocked HTTP tests
-    status: pending
+    status: completed
   - id: p4-s5
     content: AI insight provider - Gemini via gemini_client (+ template variant) with fallback tests
-    status: pending
+    status: completed
   - id: p4-s6
     content: Meme provider - Reddit discovery + Gemini selection using quiz prefs, with fallback tests
-    status: pending
+    status: completed
   - id: p4-s7
     content: Config-driven registry, dashboard service (preferences-aware context), GET /api/dashboard/daily route, blueprint registration, and mixed-outcome tests
-    status: pending
+    status: completed
 isProject: false
 ---
 
