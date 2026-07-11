@@ -38,7 +38,7 @@ AI Crypto advisor/
 │   ├── package.json
 │   ├── vite.config.ts
 │   ├── vercel.json           # /api rewrite → Render
-│   ├── .env.development      # VITE_API_BASE_URL → local Flask
+│   ├── .env.development      # empty VITE_API_BASE_URL (Vite /api → Flask)
 │   ├── .env.production       # empty VITE_API_BASE_URL (same-origin /api)
 │   ├── .env.example
 │   └── src/
@@ -105,7 +105,7 @@ Secrets live in `backend/.env` (gitignored). Prefer documenting new keys in `bac
 | `CRYPTOPANIC_API_KEY` | backend | Required for `NEWS_PROVIDER=cryptopanic` |
 | `COINGECKO_DEMO_API_KEY` / `COINGECKO_PRO_API_KEY` | backend | Optional; public API works without keys |
 | `CORS_ORIGINS` | backend | Comma-separated origins; default Vite localhost; prod = Vercel URL |
-| `VITE_API_BASE_URL` | frontend | Dev: `http://127.0.0.1:5000`; prod: **empty** (same-origin `/api` via Vercel rewrite) |
+| `VITE_API_BASE_URL` | frontend | Dev + prod: **empty** (same-origin `/api`; Vite proxies to Flask locally, Vercel rewrites to Render in prod) |
 
 Session policy (code defaults in `backend/app/config.py`):
 
@@ -135,7 +135,7 @@ cd frontend
 npm run dev
 ```
 
-API client uses `credentials: "include"` so session cookies work cross-origin in local dev. Flask-CORS is enabled with `supports_credentials=True` for origins in `CORS_ORIGINS` (default includes both `http://localhost:5173` and `http://127.0.0.1:5173`). Use `127.0.0.1` for the API base URL so browsers do not try IPv6 `localhost` (`::1`) against an IPv4-only Flask bind.
+API client uses `credentials: "include"`. Locally, leave `VITE_API_BASE_URL` empty so the browser calls same-origin `/api/...`; Vite proxies `/api` to `http://127.0.0.1:5000`. That keeps session cookies first-party (`SameSite=Lax`) on both `localhost` and `127.0.0.1`. Flask-CORS still allows direct cross-origin hits from `CORS_ORIGINS` when needed.
 
 ### Frontend routes
 

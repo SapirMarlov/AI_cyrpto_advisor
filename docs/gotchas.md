@@ -10,7 +10,8 @@ Short operational notes for the next iteration. Prefer fixing the root cause whe
 - Frontend must call the API with `credentials: "include"`. Do not store session tokens in `localStorage` / `sessionStorage` (theme preference is the only localStorage use).
 - Idle timeout is 24h (`last_active_at`); absolute lifetime is 7d from `created_at`. Sliding renewal cannot extend past the absolute cap.
 - Logout deletes the server-side session row and clears the cookie. A stolen cookie after logout is useless.
-- CORS: Vite origin must appear in `CORS_ORIGINS`. Prefer `127.0.0.1` over `localhost` on Windows so the browser does not hit IPv6 `::1` while Flask listens on IPv4.
+- CORS: Vite origin must appear in `CORS_ORIGINS` if the SPA ever calls Flask cross-origin.
+- **Local auth bounce (login → back to login):** `localhost` and `127.0.0.1` are different sites. If the SPA is on `http://localhost:5173` and `VITE_API_BASE_URL=http://127.0.0.1:5000`, login can return 200 but `/api/auth/me` gets 401 because `SameSite=Lax` will not send the session cookie cross-site. Fix: keep `VITE_API_BASE_URL` empty in `.env.development` and use the Vite `/api` proxy to Flask (same-origin cookies).
 - **Deploy (Vercel + Render):** keep cookies first-party via the Vercel `/api` rewrite. Production `VITE_API_BASE_URL` must be **empty** so the browser calls `https://your-app.vercel.app/api/...`. Do **not** set `VITE_API_BASE_URL` to the Render URL — with `SameSite=Lax`, cross-site credentialed fetches will not keep the session. Do not set cookie `Domain` (host-only on the Vercel host). Still set `CORS_ORIGINS` to the Vercel origin for direct API hits / safety.
 
 ## Rate limiting
