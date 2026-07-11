@@ -1,3 +1,4 @@
+import AnimatedList from "@/components/AnimatedList";
 import { newsItemId } from "@/components/dashboard/itemIds";
 import { VoteButtons } from "@/components/dashboard/VoteButtons";
 import {
@@ -7,7 +8,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import type { DashboardSection, NewsData } from "@/services/apiClient";
+import { cn } from "@/lib/utils";
+import type { DashboardSection, NewsData, NewsItem } from "@/services/apiClient";
 
 type NewsPanelProps = {
   section: DashboardSection<NewsData> | undefined;
@@ -25,7 +27,7 @@ export function NewsPanel({ section, loading = false }: NewsPanelProps) {
           {section?.stale ? "Showing stale cached headlines." : "Latest headlines for your interests."}
         </CardDescription>
       </CardHeader>
-      <CardContent className="scrollbar-themed max-h-80 space-y-4 overflow-y-auto pe-1">
+      <CardContent className="pe-1">
         {loading ? <p className="text-muted-foreground text-sm">Loading news…</p> : null}
         {!loading && section?.error ? (
           <p className="text-destructive text-sm" role="alert">
@@ -35,9 +37,20 @@ export function NewsPanel({ section, loading = false }: NewsPanelProps) {
         {!loading && !section?.error && items.length === 0 ? (
           <p className="text-muted-foreground text-sm">No news items right now.</p>
         ) : null}
-        {!loading
-          ? items.map((item) => (
-              <article key={item.url} className="space-y-2 border-b border-border pb-3 last:border-0">
+        {!loading && items.length > 0 ? (
+          <AnimatedList
+            items={items}
+            getItemKey={(item: NewsItem) => item.url}
+            enableArrowNavigation={false}
+            showGradients
+            displayScrollbar
+            renderItem={(item: NewsItem, _index, selected) => (
+              <article
+                className={cn(
+                  "space-y-2 rounded-lg border border-transparent px-2 py-2 transition-colors",
+                  selected && "border-border bg-muted/40",
+                )}
+              >
                 <a
                   href={item.url}
                   target="_blank"
@@ -52,8 +65,9 @@ export function NewsPanel({ section, loading = false }: NewsPanelProps) {
                 </p>
                 <VoteButtons itemId={newsItemId(item.url)} itemType="news" />
               </article>
-            ))
-          : null}
+            )}
+          />
+        ) : null}
       </CardContent>
     </Card>
   );
